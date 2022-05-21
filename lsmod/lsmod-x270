@@ -1,0 +1,118 @@
+Module                  Size  Used by
+joydev                 24576  0
+mousedev               24576  0
+intel_rapl_msr         16384  0
+intel_rapl_common      28672  1 intel_rapl_msr
+intel_pmc_core_pltdrv    16384  0
+intel_pmc_core         40960  0
+snd_soc_skl           135168  0
+intel_tcc_cooling      16384  0
+snd_soc_sst_ipc        16384  1 snd_soc_skl
+snd_soc_sst_dsp        16384  1 snd_soc_skl
+snd_hda_codec_hdmi     61440  1
+snd_soc_hdac_hda       20480  1 snd_soc_skl
+x86_pkg_temp_thermal    16384  0
+snd_hda_ext_core       24576  2 snd_soc_hdac_hda,snd_soc_skl
+intel_powerclamp       16384  0
+snd_soc_acpi_intel_match    49152  1 snd_soc_skl
+tps6598x               20480  0
+iwlmvm                352256  0
+snd_soc_acpi           16384  2 snd_soc_acpi_intel_match,snd_soc_skl
+snd_soc_core          229376  2 snd_soc_hdac_hda,snd_soc_skl
+typec                  40960  1 tps6598x
+mac80211              598016  1 iwlmvm
+coretemp               16384  0
+crct10dif_pclmul       16384  1
+snd_ctl_led            24576  0
+crc32_pclmul           16384  0
+snd_compress           20480  1 snd_soc_core
+crc32c_intel           24576  0
+snd_hda_codec_realtek   143360  1
+ghash_clmulni_intel    16384  0
+nls_iso8859_1          16384  1
+ac97_bus               16384  1 snd_soc_core
+aesni_intel           380928  0
+libaes                 20480  1 aesni_intel
+snd_hda_codec_generic    86016  1 snd_hda_codec_realtek
+crypto_simd            16384  1 aesni_intel
+nls_cp437              20480  1
+snd_pcm_dmaengine      16384  1 snd_soc_core
+cryptd                 20480  2 crypto_simd,ghash_clmulni_intel
+libarc4                16384  1 mac80211
+input_leds             16384  0
+psmouse               151552  0
+ee1004                 16384  0
+serio_raw              16384  0
+snd_hda_intel          32768  0
+iTCO_wdt               16384  0
+i2c_designware_platform    16384  0
+rtsx_pci_sdmmc         24576  0
+intel_pmc_bxt          16384  1 iTCO_wdt
+mei_wdt                16384  0
+iTCO_vendor_support    16384  1 iTCO_wdt
+i2c_designware_core    28672  1 i2c_designware_platform
+atkbd                  28672  0
+snd_intel_dspcfg       28672  2 snd_hda_intel,snd_soc_skl
+mei_pxp                16384  0
+rapl                   16384  0
+intel_wmi_thunderbolt    16384  0
+mmc_core              139264  1 rtsx_pci_sdmmc
+think_lmi              20480  0
+mei_hdcp               16384  0
+snd_intel_sdw_acpi     16384  1 snd_intel_dspcfg
+iwlwifi               299008  1 iwlmvm
+libps2                 16384  2 atkbd,psmouse
+wmi_bmof               16384  0
+mac_hid                16384  0
+firmware_attributes_class    16384  1 think_lmi
+e1000e                225280  0
+snd_hda_codec         122880  5 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_realtek,snd_soc_hdac_hda
+evdev                  24576  5
+intel_cstate           16384  0
+intel_uncore          172032  0
+i915                 2691072  2
+snd_hda_core           73728  8 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_ext_core,snd_hda_codec,snd_hda_codec_realtek,snd_soc_hdac_hda,snd_soc_skl
+iwlmei                 28672  2 iwlmvm,iwlwifi
+ptp                    28672  1 e1000e
+i2c_i801               32768  0
+pcspkr                 16384  0
+efi_pstore             16384  0
+snd_hwdep              16384  1 snd_hda_codec
+intel_lpss_pci         28672  0
+snd_pcm               126976  8 snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_compress,snd_soc_core,snd_soc_skl,snd_hda_core,snd_pcm_dmaengine
+i2c_smbus              16384  1 i2c_i801
+nvme                   45056  0
+intel_lpss             16384  1 intel_lpss_pci
+intel_gtt              20480  1 i915
+pps_core               16384  1 ptp
+cfg80211              397312  4 iwlmvm,iwlmei,iwlwifi,mac80211
+snd_timer              32768  1 snd_pcm
+idma64                 20480  0
+nvme_core              86016  1 nvme
+thinkpad_acpi         114688  0
+mei_me                 24576  3
+ttm                    61440  1 i915
+rtsx_pci               77824  1 rtsx_pci_sdmmc
+uas                    28672  0
+mei                    86016  8 mei_wdt,mei_hdcp,iwlmei,mei_pxp,mei_me
+nvram                  16384  1 thinkpad_acpi
+intel_pch_thermal      16384  0
+ledtrig_audio          16384  3 snd_ctl_led,snd_hda_codec_generic,thinkpad_acpi
+platform_profile       16384  1 thinkpad_acpi
+rfkill                 28672  4 iwlmvm,thinkpad_acpi,cfg80211
+wmi                    24576  3 intel_wmi_thunderbolt,wmi_bmof,think_lmi
+i2c_multi_instantiate    16384  0
+snd                    77824  11 snd_ctl_led,snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_hda_codec,snd_timer,snd_compress,thinkpad_acpi,snd_soc_core,snd_pcm
+soundcore              16384  2 snd_ctl_led,snd
+battery                24576  1 thinkpad_acpi
+ac                     16384  0
+rtc_cmos               20480  1
+i8042                  32768  0
+serio                  24576  7 serio_raw,atkbd,psmouse,i8042
+tiny_power_button      16384  0
+video                  49152  2 thinkpad_acpi,i915
+backlight              16384  3 video,thinkpad_acpi,i915
+acpi_pad               20480  0
+button                 20480  0
+thermal                20480  0
+fuse                  143360  1

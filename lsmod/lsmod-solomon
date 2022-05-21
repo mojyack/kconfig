@@ -1,0 +1,102 @@
+Module                  Size  Used by
+amdgpu               6729728  0
+mousedev               24576  0
+joydev                 24576  0
+input_leds             16384  0
+eeepc_wmi              16384  0
+nls_iso8859_1          16384  1
+asus_wmi               53248  1 eeepc_wmi
+nls_cp437              20480  1
+intel_rapl_msr         16384  0
+sparse_keymap          16384  1 asus_wmi
+battery                24576  1 asus_wmi
+btrfs                1253376  0
+hid_generic            16384  0
+evdev                  24576  4
+platform_profile       16384  1 asus_wmi
+video                  49152  1 asus_wmi
+btusb                  53248  0
+mxm_wmi                16384  0
+wmi_bmof               16384  0
+mac_hid                16384  0
+snd_hda_codec_realtek   143360  1
+btrtl                  16384  1 btusb
+btmtk                  16384  1 btusb
+btintel                36864  1 btusb
+snd_hda_codec_generic    86016  1 snd_hda_codec_realtek
+btbcm                  20480  1 btusb
+ledtrig_audio          16384  1 snd_hda_codec_generic
+bluetooth             602112  6 btrtl,btmtk,btintel,btbcm,btusb
+snd_hda_codec_hdmi     61440  1
+snd_usb_audio         286720  0
+rtw88_8822be           16384  0
+rtw88_8822b           225280  1 rtw88_8822be
+snd_hda_intel          32768  0
+snd_intel_dspcfg       28672  1 snd_hda_intel
+snd_intel_sdw_acpi     16384  1 snd_intel_dspcfg
+snd_hda_codec         122880  4 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec_realtek
+rtw88_pci              28672  1 rtw88_8822be
+edac_mce_amd           40960  0
+snd_usbmidi_lib        36864  1 snd_usb_audio
+asus_wmi_sensors       20480  0
+edac_core              53248  0
+raid6_pq              118784  1 btrfs
+snd_hda_core           73728  5 snd_hda_codec_generic,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_hda_codec_realtek
+snd_rawmidi            32768  1 snd_usbmidi_lib
+rtw88_core            172032  2 rtw88_pci,rtw88_8822b
+snd_seq_device         16384  1 snd_rawmidi
+ecdh_generic           16384  1 bluetooth
+ecc                    53248  1 ecdh_generic
+uas                    28672  0
+mc                     36864  1 snd_usb_audio
+xor                    24576  1 btrfs
+snd_hwdep              16384  2 snd_usb_audio,snd_hda_codec
+intel_rapl_common      28672  1 intel_rapl_msr
+mac80211              598016  2 rtw88_pci,rtw88_core
+crct10dif_pclmul       16384  1
+zstd_decompress       118784  1 btrfs
+snd_pcm               126976  5 snd_hda_codec_hdmi,snd_hda_intel,snd_usb_audio,snd_hda_codec,snd_hda_core
+crc32_pclmul           16384  0
+igb                   249856  0
+iommu_v2               20480  1 amdgpu
+ghash_clmulni_intel    16384  0
+zstd_compress         405504  1 btrfs
+gpu_sched              28672  1 amdgpu
+aesni_intel           380928  0
+snd_timer              32768  1 snd_pcm
+ptp                    28672  1 igb
+drm_ttm_helper         16384  1 amdgpu
+lzo_decompress         16384  1 btrfs
+cfg80211              397312  2 rtw88_core,mac80211
+lzo_compress           16384  1 btrfs
+ttm                    61440  2 amdgpu,drm_ttm_helper
+usbhid                 57344  0
+pps_core               16384  1 ptp
+libaes                 20480  2 bluetooth,aesni_intel
+snd                    77824  11 snd_hda_codec_generic,snd_seq_device,snd_hda_codec_hdmi,snd_hwdep,snd_hda_intel,snd_usb_audio,snd_usbmidi_lib,snd_hda_codec,snd_timer,snd_pcm,snd_rawmidi
+libcrc32c              16384  1 btrfs
+rfkill                 28672  4 asus_wmi,bluetooth,cfg80211
+crypto_simd            16384  1 aesni_intel
+backlight              16384  3 video,asus_wmi,amdgpu
+dca                    16384  1 igb
+soundcore              16384  1 snd
+crc32c_intel           24576  1
+pcspkr                 16384  0
+cryptd                 20480  2 crypto_simd,ghash_clmulni_intel
+libarc4                16384  1 mac80211
+rapl                   16384  0
+sp5100_tco             16384  0
+efi_pstore             16384  0
+k10temp                20480  0
+i2c_designware_platform    16384  0
+i2c_piix4              24576  0
+acpi_cpufreq           16384  0
+i2c_designware_core    28672  1 i2c_designware_platform
+wmi                    24576  4 asus_wmi_sensors,asus_wmi,wmi_bmof,mxm_wmi
+tiny_power_button      16384  0
+gpio_amdpt             16384  0
+gpio_generic           20480  1 gpio_amdpt
+rtc_cmos               20480  1
+pinctrl_amd            28672  0
+button                 20480  0
+fuse                  143360  1
