@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 6.0.7-gentoo Kernel Configuration
+# Linux/x86 6.0.9-gentoo Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="clang version 15.0.3"
 CONFIG_GCC_VERSION=0
@@ -427,7 +427,7 @@ CONFIG_HOTPLUG_CPU=y
 # CONFIG_LEGACY_VSYSCALL_XONLY is not set
 CONFIG_LEGACY_VSYSCALL_NONE=y
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="root=PARTUUID=4de8a03a-c7fd-4542-a96a-f40203697071 rw quiet loglevel=3 mitigations=off fsck.mode=skip nowatchdog i915.enable_gvt=1 kvm.ignore_msrs=1 intel_iommu=on iommu=pt pcie_acs_override=downstream,multifunction"
+CONFIG_CMDLINE="root=PARTUUID=c77c8dec-3064-4442-96f3-a559cd8feae1 rw quiet loglevel=3 mitigations=off fsck.mode=skip nowatchdog i915.enable_gvt=1 kvm.ignore_msrs=1 intel_iommu=on iommu=pt pcie_acs_override=downstream,multifunction"
 # CONFIG_CMDLINE_OVERRIDE is not set
 CONFIG_MODIFY_LDT_SYSCALL=y
 # CONFIG_STRICT_SIGALTSTACK_SIZE is not set
