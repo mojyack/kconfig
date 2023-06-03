@@ -1,0 +1,2 @@
+git clone --depth=1 'https://github.com/linux-surface/kernel' -b surface/v6.1.28-1 6.1.28
+curl 'https://dev.gentoo.org/~mpagano/genpatches/trunk/6.1/5010_enable-cpu-optimizations-universal.patch' | patch -p1
