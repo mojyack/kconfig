@@ -8,13 +8,20 @@ fi
 patch='https://gitlab.archlinux.org/archlinux/packaging/packages/broadcom-wl-dkms.git/'
 src="https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/hybrid-v35_64-nodebug-pcoem-6_30_223_271.tar.gz"
 
-git clone --depth=1 "$patch"
-curl -o hybrid-v35_64-nodebug-pcoem.tar.gz "$src"
+if [[ ! -e broadcom-wl-dkms ]]; then
+    git clone --depth=1 "$patch"
+fi
+if [[ ! -e hybrid-v35_64-nodebug-pcoem.tar.gz ]]; then
+    curl -o hybrid-v35_64-nodebug-pcoem.tar.gz "$src"
+    unpack=1
+fi
 
 mkdir -p work
 cd work
-tar xvf ../hybrid-v35_64-nodebug-pcoem.tar.gz
-for p (../broadcom-wl-dkms/*.patch); do patch -p1 < $p; done
+if [[ $unpack == 1 ]]; then
+    tar xvf ../hybrid-v35_64-nodebug-pcoem.tar.gz
+    for p (../broadcom-wl-dkms/*.patch); do patch -p1 < $p; done
+fi
 make CC=clang GE_49=1 LLVM=1 KBUILD_DIR=/usr/src/linux O="$1"
 
 mkdir -p "$2/kernel/drivers/net/wireless"
