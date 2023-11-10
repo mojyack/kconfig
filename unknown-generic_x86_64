@@ -477,7 +477,7 @@ CONFIG_HOTPLUG_CPU=y
 # CONFIG_LEGACY_VSYSCALL_XONLY is not set
 CONFIG_LEGACY_VSYSCALL_NONE=y
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="root=PARTUUID=ae09879c-9bad-47f1-9ab5-e448f6c0a257 rw loglevel=7 mitigations=off fsck.mode=skip rootwait nowatchdog intel_iommu=off acpi_osi=!Darwin"
+CONFIG_CMDLINE="root=PARTUUID=ae09879c-9bad-47f1-9ab5-e448f6c0a257 rw loglevel=7 mitigations=off fsck.mode=skip rootwait nowatchdog"
 # CONFIG_CMDLINE_OVERRIDE is not set
 CONFIG_MODIFY_LDT_SYSCALL=y
 # CONFIG_STRICT_SIGALTSTACK_SIZE is not set
