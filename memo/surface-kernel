@@ -1,4 +1,4 @@
-git clone --depth=1 'https://github.com/linux-surface/kernel' -b surface/v6.5.5 6.5.5
+git clone --depth=1 'https://github.com/linux-surface/kernel' -b surface/v6.5.8 6.5.8
 curl 'https://dev.gentoo.org/~mpagano/genpatches/trunk/6.1/5010_enable-cpu-optimizations-universal.patch' | patch -p1
 
 # int3472 fix
