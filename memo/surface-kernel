@@ -1,5 +1,8 @@
-git clone --depth=1 'https://github.com/linux-surface/kernel' -b v6.6-surface linux-surface
+git clone --depth=1 'https://github.com/linux-surface/kernel' -b v6.7-surface linux-surface
 curl 'https://dev.gentoo.org/~mpagano/genpatches/trunk/6.1/5010_enable-cpu-optimizations-universal.patch' | patch -p1
 
 # int3472 fix
 # curl 'https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/patch/?id=fb109fba728407fa4a84d659b5cb87cd8399d7b3' | patch -p1
+
+# imgu fix
+curl 'https://patchwork.kernel.org/project/linux-media/patch/20240109080910.2859780-1-hidenorik@chromium.org/raw/' | patch -p1
