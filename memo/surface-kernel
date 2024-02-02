@@ -1,8 +1,18 @@
 git clone --depth=1 'https://github.com/linux-surface/kernel' -b v6.7-surface linux-surface
 curl 'https://dev.gentoo.org/~mpagano/genpatches/trunk/6.1/5010_enable-cpu-optimizations-universal.patch' | patch -p1
 
+# v6.7 camera workarounds
+## fix "failed initialize subdev media entity" error
+## cherry-pick from staging tree
+curl 'https://git.linuxtv.org/media_stage.git/patch/?id=87318b7092670d4086bfec115a0280a60c51c2dd' | patch -p1
+## revert dw9719 driver
+curl 'https://raw.githubusercontent.com/linux-surface/kernel/v6.5-surface/drivers/media/i2c/dw9719.c' -o drivers/media/i2c/dw9719.c
+sed -i 's/.probe_new/.probe/' drivers/media/i2c/dw9719.c
+## optional: suppress the "source of link 'ipu3-imgu 0 input':0->'ipu3-imgu 0':0 is not a V4L2 sub-device, driver bug!" warning
+curl 'https://github.com/linux-surface/kernel/commit/55f1ecb1199000932cf82e357841cc7498ac904f' | patch -R -p1
+## optional: suppress annoying stacktrace around call_s_stream on application exit
+curl 'https://github.com/linux-surface/kernel/commit/009905ec50433259c05f474251000b040098564e' | patch -R -p1
+
+# obsolete
 # int3472 fix
 # curl 'https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/patch/?id=fb109fba728407fa4a84d659b5cb87cd8399d7b3' | patch -p1
-
-# imgu fix
-curl 'https://patchwork.kernel.org/project/linux-media/patch/20240109080910.2859780-1-hidenorik@chromium.org/raw/' | patch -p1
