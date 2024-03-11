@@ -9,9 +9,9 @@ curl 'https://git.linuxtv.org/media_stage.git/patch/?id=87318b7092670d4086bfec11
 curl 'https://raw.githubusercontent.com/linux-surface/kernel/v6.5-surface/drivers/media/i2c/dw9719.c' -o drivers/media/i2c/dw9719.c
 sed -i 's/.probe_new/.probe/' drivers/media/i2c/dw9719.c
 ## optional: suppress the "source of link 'ipu3-imgu 0 input':0->'ipu3-imgu 0':0 is not a V4L2 sub-device, driver bug!" warning
-curl 'https://github.com/linux-surface/kernel/commit/55f1ecb1199000932cf82e357841cc7498ac904f' | patch -R -p1
+curl 'https://github.com/linux-surface/kernel/commit/55f1ecb1199000932cf82e357841cc7498ac904f.patch' | patch -R -p1
 ## optional: suppress annoying stacktrace around call_s_stream on application exit
-curl 'https://github.com/linux-surface/kernel/commit/009905ec50433259c05f474251000b040098564e' | patch -R -p1
+curl 'https://github.com/linux-surface/kernel/commit/009905ec50433259c05f474251000b040098564e.patch' | patch -R -p1
 
 # obsolete
 # int3472 fix
