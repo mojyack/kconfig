@@ -1,4 +1,4 @@
 mkdir wl fthd remote
 sshfs root@direct-client:/ remote
-~/build/kconfig/scripts/build-facetimehd.sh /tmp/linux/crocus /tmp/linux/crocus/remote
-~/build/kconfig/scripts/build-wl.sh /tmp/linux/crocus /tmp/linux/crocus/remote/lib/modules/6.*
+~/build/kconfig/scripts/build-facetimehd.sh $PWD $PWD/remote
+~/build/kconfig/scripts/build-wl.sh $PWD $PWD/remote/lib/modules/6.*
