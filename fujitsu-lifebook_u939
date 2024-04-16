@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 6.6.13-gentoo Kernel Configuration
+# Linux/x86 6.6.21-gentoo Kernel Configuration
 #
 CONFIG_CC_VERSION_TEXT="clang version 17.0.6"
 CONFIG_GCC_VERSION=0
@@ -2398,7 +2398,6 @@ CONFIG_MFD_INTEL_LPSS_PCI=m
 # CONFIG_MFD_SM501 is not set
 # CONFIG_MFD_SKY81452 is not set
 # CONFIG_MFD_SYSCON is not set
-# CONFIG_MFD_TI_AM335X_TSCADC is not set
 # CONFIG_MFD_LP3943 is not set
 # CONFIG_MFD_LP8788 is not set
 # CONFIG_MFD_TI_LMU is not set
@@ -3737,7 +3736,9 @@ CONFIG_TYPEC_UCSI=m
 CONFIG_UCSI_ACPI=m
 # CONFIG_UCSI_STM32G0 is not set
 # CONFIG_TYPEC_TPS6598X is not set
+# CONFIG_TYPEC_ANX7411 is not set
 # CONFIG_TYPEC_RT1719 is not set
+# CONFIG_TYPEC_HD3SS3220 is not set
 # CONFIG_TYPEC_STUSB160X is not set
 # CONFIG_TYPEC_WUSB3801 is not set
 
@@ -3753,11 +3754,11 @@ CONFIG_UCSI_ACPI=m
 #
 # USB Type-C Alternate Mode drivers
 #
-CONFIG_TYPEC_DP_ALTMODE=m
-# CONFIG_TYPEC_NVIDIA_ALTMODE is not set
+# CONFIG_TYPEC_DP_ALTMODE is not set
 # end of USB Type-C Alternate Mode drivers
 
-# CONFIG_USB_ROLE_SWITCH is not set
+CONFIG_USB_ROLE_SWITCH=m
+# CONFIG_USB_ROLES_INTEL_XHCI is not set
 CONFIG_MMC=m
 CONFIG_MMC_BLOCK=m
 CONFIG_MMC_BLOCK_MINORS=8
