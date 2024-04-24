@@ -494,7 +494,7 @@ CONFIG_STACKPROTECTOR_PER_TASK=y
 #
 # Boot options
 #
-CONFIG_CMDLINE="root=PARTUUID=d8e6753a-e694-66cc-f02f-d3030b86f5d2 rw rootwait init=/sbin/runit-init loglevel=7 mitigations=off console=ttyMSM0,115200"
+CONFIG_CMDLINE="root=PARTUUID=d8e6753a-e694-66cc-f02f-d3030b86f5d2 rw rootwait loglevel=3 mitigations=off console=ttyMSM0,115200"
 # CONFIG_CMDLINE_FROM_BOOTLOADER is not set
 CONFIG_CMDLINE_FORCE=y
 # CONFIG_EFI is not set
