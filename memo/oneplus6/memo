@@ -10,7 +10,7 @@ cp ~/build/kconfig/oneplus-oneplus_6 build/.config
 ln -s build/arch/arm64/boot boot
 
 # prepare kernel
-git clone --depth=1 https://gitlab.com/sdm845-mainline/linux -b sdm845/6.7-release
+git clone --depth=1 https://gitlab.com/sdm845-mainline/linux -b sdm845/6.9-release
 pushd linux
 ## print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
@@ -29,9 +29,11 @@ popd
 # install
 ./create-boot-image.sh boot/Image.gz boot/dts/qcom/sdm845-oneplus-enchilada.dtb boot_m.img
 doas mount usb1:/ /mnt
+pushd linux
 doas sh -c "INSTALL_MOD_PATH=/mnt make $make_args modules_install"
 doas cp ../boot_m.img /mnt/boot
 doas umount /mnt
+popd
 
 # in target device
 # write new image and reboot
