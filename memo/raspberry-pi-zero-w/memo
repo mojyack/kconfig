@@ -1,0 +1,31 @@
+# create build directory
+mkdir build
+cp ~/build/kconfig/raspberrypi-raspberrypi_zero_w build/.config
+
+# prepare kernel
+git clone --depth=1 -b rpi-6.6.y https://github.com/raspberrypi/linux/
+pushd linux
+## print firmware
+curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
+## fix assembly for llvm
+curl https://github.com/raspberrypi/linux/commit/f43a67d9309a988eb1def20bc422c0882ce65e5a.patch | patch -p1
+## fix vfp
+patch -p1 < fix-vfp.patch
+
+# build kernel
+make_args=(ARCH=arm CC=clang LLVM=1 O=$PWD/../build -j$(nproc))
+alias kmake="make $make_args"
+kmake zImage
+kmake modules
+kmake dtbs
+popd
+
+# install
+# mount target disk to /mnt
+pushd build
+cp arch/arm/boot/zImage /mnt/boot/kernel.img
+cp arch/arm/boot/dts/broadcom/bcm2708-rpi-zero-w.dtb /mnt/boot
+mkdir /mnt/boot/overlays
+cp arch/arm/boot/dts/overlays/*.dtb* /mnt/boot/overlays
+sh -c "INSTALL_MOD_PATH=/mnt make $make_args modules_install"
+popd
