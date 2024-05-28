@@ -16,6 +16,8 @@ pushd linux
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
 ## enable usb host mode
 sed -i 's/dr_mode = "peripheral"/dr_mode = "host"/' arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+## additional patches
+patch -p1 < msm-dpu-supress-warnings.patch
 
 # build kernel
 make_args=(ARCH=arm64 CC=clang LLVM=1 O=$PWD/../build -j$(nproc))
