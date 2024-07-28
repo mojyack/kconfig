@@ -3,3 +3,6 @@ curl https://github.com/torvalds/linux/commit/387f295cb2150ed164905b648d76dfcbd3
 
 # since 6.6.38
 curl https://lore.kernel.org/kvm/20240710004150.319105-1-yi.l.liu@intel.com/raw | doas patch -p1
+
+# fujitsu battery, until 6.9
+curl https://github.com/torvalds/linux/commit/14c8a1451810cf616c959574bee4fad246f3a0cb.diff | doas patch -p1
