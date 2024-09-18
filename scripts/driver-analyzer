@@ -1,0 +1,198 @@
+#!/usr/bin/env python3
+# usage: driver-analyzer VENDOR/BOARD
+
+import sys
+import os
+import re
+import subprocess
+
+compatibles_cache_file = "compatibles-cache.txt"
+
+
+def extract_compatibles_from_source(file, rules):
+    ret = []
+    src = open(file).read()
+    for rule in rules:
+        pattern = rule[0]
+        extract = rule[1]
+        for match in re.findall(pattern, src):
+            match = match.replace("\t", " ")
+            match = match.replace('",', '"')
+            ret.append(extract(match))
+    return ret
+
+
+# compatibles: list of list([0] = source file path, [1:] = compatible strings)
+
+
+def list_compatibles(dir):
+    ret = []
+    rules = [
+        [
+            re.compile(r'\.compatible\s*=\s*".*"'),
+            lambda match: [x for x in match.split(" ") if x][2][1:-1],
+        ],
+        [
+            re.compile(r'of_get_compatible_child(.*,.*")'),
+            lambda match: match.split(" ")[-1][1:-1],
+        ],
+        [
+            re.compile(r'of_device_is_compatible(.*,.*")'),
+            lambda match: match.split(" ")[-1][1:-1],
+        ],
+        [
+            re.compile(r'IRQCHIP_MATCH(.*,.*")'),
+            lambda match: match.split(" ")[-1][2:-1],
+        ],
+        [
+            re.compile(r"of_find_compatible_node(.*,.*,.*)"),
+            lambda match: match.split(" ")[-1][1:-3],
+        ],
+    ]
+
+    for cwd, dirs, files in os.walk(dir):
+        for file in files:
+            if not file.endswith(".c"):
+                continue
+            path = cwd + "/" + file
+            matches = extract_compatibles_from_source(path, rules)
+            if len(matches) == 0:
+                continue
+            ret.append([path] + matches)
+    return ret
+
+
+def regex_test():
+    file = "drivers/counter/stm32-timer-cnt.c"
+    file = "drivers/usb/dwc3/dwc3-qcom.c"
+    file = "drivers/mmc/host/sdhci-msm.c"
+    file = "drivers/phy/qualcomm/phy-qcom-qusb2.c"
+    file = "drivers/of/platform.c"
+    file = "drivers/power/supply/qcom_pmi8998_charger.c"
+    # file = "drivers/counter/ti-ecap-capture.c"
+    # file = "sound/soc/qcom/qdsp6/q6afe.c"
+    # pattern = re.compile(r'\.compatible\s*=\s*".*"')
+    # pattern = re.compile(r"of_device_is_compatible(.*,.*\")")
+    file = "drivers/irqchip/qcom-pdc.c"
+    pattern = re.compile(r'IRQCHIP_MATCH(.*,.*")')
+    file = "drivers/remoteproc/qcom_pil_info.c"
+    pattern = re.compile(r"of_find_compatible_node(.*,.*,.*)")
+    ret = []
+    src = open(file).read()
+    for match in re.findall(pattern, src):
+        match = match.replace("\t", " ")
+        match = match.replace('",', '"')
+        print(match)
+        # ret.append([x for x in match.split(" ") if x][2][1:-1])
+        ret.append(match.split(" ")[-1][1:-3])
+    return ret
+
+
+# print(regex_test())
+# exit(0)
+
+
+def dump_compatibles(compatibles):
+    file = open(compatibles_cache_file, "w")
+    for compatible in compatibles:
+        for elm in compatible:
+            file.write(elm)
+            file.write(" ")
+        file.write("\n")
+
+
+def load_compatibles():
+    ret = []
+    text = open(compatibles_cache_file).read()
+    for line in text.split("\n"):
+        if len(line) > 0:
+            ret.append(line.strip().split(" "))
+    return ret
+
+
+def compile_dts(machine):
+    args = "clang -x assembler-with-cpp -nostdinc -E -P -Iinclude".split(" ") + [
+        f"arch/arm64/boot/dts/{machine}.dts"
+    ]
+    # print(args)
+
+    result = subprocess.run(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    stdout = result.stdout.decode("utf-8")
+    if result.returncode != 0:
+        print("cc error", result.returncode, stdout)
+        exit(1)
+    return stdout
+
+
+def extract_devices_from_dts(dts):
+    ret = []
+    for line in dts.split("\n"):
+        if not "compatible " in line:
+            continue
+
+        compatibles = line.strip().split(" ")[2:]
+        ret.append([compat[1:-2] for compat in compatibles])
+
+    return ret
+
+
+def find_corresponding_config(file):
+    ret = []
+
+    makefile_path = os.path.dirname(file) + "/Makefile"
+    if not os.path.exists(makefile_path):
+        return ret
+    name = os.path.basename(file)[:-2] + ".o"
+    for line in open(makefile_path).read().split("\n"):
+        if not name in line or not "CONFIG_" in line:
+            continue
+        config = re.search("CONFIG_[0-9A-Z_]*", line)
+        ret.append(config.group())
+    return ret
+
+
+if not os.path.exists(compatibles_cache_file):
+    print("enumerating drivers")
+    compatibles = list_compatibles("drivers") + list_compatibles("sound")
+    dump_compatibles(compatibles)
+else:
+    print("using cache")
+    compatibles = load_compatibles()
+
+dts = compile_dts(sys.argv[1])
+devices = extract_devices_from_dts(dts)
+
+missing_drivers = []
+required_sources = set()
+
+for device in devices:
+    found = False
+    for device_compatible in device:
+        for driver_compatibles in compatibles:
+            # exclude driver_compatibles[0] from search, since [0] is a file path
+            if device_compatible in driver_compatibles[1:]:
+                required_sources.add(driver_compatibles[0])
+                found = True
+        if found:
+            break
+
+    if not found:
+        missing_drivers.append(device)
+
+print(f"devices without driver({len(missing_drivers)}):")
+for driver in missing_drivers:
+    print("    ", driver)
+
+print(f"found source files({len(required_sources)}):")
+for source in required_sources:
+    print("    ", source)
+    configs = find_corresponding_config(source)
+    if len(configs) == 0:
+        print("cannot find corresponding config")
+    else:
+        for config in configs:
+            print("        ", config)
