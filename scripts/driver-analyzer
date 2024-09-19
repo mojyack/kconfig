@@ -11,7 +11,10 @@ compatibles_cache_file = "compatibles-cache.txt"
 
 def extract_compatibles_from_source(file, rules):
     ret = []
-    src = open(file).read()
+    try:
+        src = open(file).read()
+    except UnicodeDecodeError:
+        return []
     for rule in rules:
         pattern = rule[0]
         extract = rule[1]
