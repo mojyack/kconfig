@@ -143,19 +143,28 @@ def extract_devices_from_dts(dts):
     return ret
 
 
+# returns (code,list)
+# code: 0 = ok, 1 = makefile nto found, 2 = possible result
 def find_corresponding_config(file):
-    ret = []
-
     makefile_path = os.path.dirname(file) + "/Makefile"
     if not os.path.exists(makefile_path):
-        return ret
+        return (0, [])
+
+    ret = []
     name = os.path.basename(file)[:-2] + ".o"
-    for line in open(makefile_path).read().split("\n"):
+    makefile = open(makefile_path).read()
+    for line in makefile.split("\n"):
         if not name in line or not "CONFIG_" in line:
             continue
         config = re.search("CONFIG_[0-9A-Z_]*", line)
         ret.append(config.group())
-    return ret
+
+    if len(ret) > 0:
+        return (1, ret)
+
+    for match in re.findall(re.compile("CONFIG_[0-9A-Z_]*"), makefile):
+        ret.append(match)
+    return (2, ret)
 
 
 if not os.path.exists(compatibles_cache_file):
@@ -188,14 +197,19 @@ for device in devices:
 
 print(f"devices without driver({len(missing_drivers)}):")
 for driver in missing_drivers:
-    print("    ", driver)
+    print("   ", driver)
 
 print(f"found source files({len(required_sources)}):")
 for source in required_sources:
-    print("    ", source)
-    configs = find_corresponding_config(source)
-    if len(configs) == 0:
-        print("cannot find corresponding config")
-    else:
-        for config in configs:
-            print("        ", config)
+    print("   ", source)
+    code, configs = find_corresponding_config(source)
+    match code:
+        case 0:
+            print("        makefile not found")
+        case 1:
+            for config in configs:
+                print("       ", config)
+        case 2:
+            print("       cannot find exact match")
+            if len(configs) == 1:
+                print("       possibly", configs[0])
