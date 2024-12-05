@@ -1,5 +1,0 @@
-172a173,176
-> 	/* Broadcom BCM2045 devices on GPD Pocket */
-> 	{ USB_DEVICE(0x0000, 0x0000), 
-> 	  .driver_info = BTUSB_BCM2045 },
-> 
