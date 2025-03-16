@@ -26,4 +26,4 @@ args=(
     --output $3
 )
 
-exec ${0:a:h}/mkbootimg/mkbootimg $args
+exec mkbootimg/mkbootimg $args

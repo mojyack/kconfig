@@ -10,7 +10,7 @@ cp ~/build/kconfig/oneplus-oneplus_6 build/.config
 ln -s build/arch/arm64/boot boot
 
 # prepare kernel
-git clone --depth=1 https://gitlab.com/sdm845-mainline/linux -b sdm845/6.9-release
+git clone --depth=1 https://gitlab.com/sdm845-mainline/linux.git -b sdm845/6.13-release
 pushd linux
 ## print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
