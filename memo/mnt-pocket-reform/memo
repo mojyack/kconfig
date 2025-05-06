@@ -1,0 +1,39 @@
+v=6.12.25
+
+# download files
+curl -OL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$v.tar.xz
+tar -xf linux-$v.tar.xz
+git clone --depth=1 https://source.mnt.re/reform/reform-debian-packages.git
+git clone --depth=1 https://source.mnt.re/reform/reform-tools.git
+
+# patches
+cd linux-$v
+# print firmware
+curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
+# mnt patches
+for patch in ../reform-debian-packages/linux/patches${v%.*}/{rk3588-mnt-reform2/*.patch, imx8mp-mnt-pocket-reform/pocket-panel/0001-v5-add-multi-display-panel-driver.patch}; do
+    patch -p1 < "$patch" || break
+done
+# add dtb
+cp ../reform-debian-packages/linux/rk3588-mnt-pocket-reform.dts arch/arm64/boot/dts/rockchip
+sed -i '/rk3588-rock-5b.dtb/a dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3588-mnt-pocket-reform.dtb' arch/arm64/boot/dts/rockchip/Makefile
+
+# build
+A=arm64
+W=/tmp/linux/mnt
+D=/tmp/mnt/usb1
+
+source ~/build/kconfig/scripts/kmakeenv
+
+init_workdir ~/build/kconfig/mnt-pocket_reform_rcore &&
+kmake Image &&
+kmake modules &&
+kmake dtbs &&
+rkmake modules_install &&
+doas cp $W/arch/arm64/boot/Image $D/boot/vmlinuz &&
+doas cp $W/arch/arm64/boot/dts/rockchip/rk3588-mnt-pocket-reform.dtb $D/boot/dtb
+
+# lpc
+# TODO: apply lpc.patch
+kmake M=$PWD/../reform-tools/lpc modules
+rkmake M=$PWD/../reform-tools/lpc modules_install

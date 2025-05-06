@@ -1,0 +1,31 @@
+diff --git a/lpc/reform2_lpc.c b/lpc/reform2_lpc.c
+index b96e26f..4ea5dd4 100644
+--- a/lpc/reform2_lpc.c
++++ b/lpc/reform2_lpc.c
+@@ -202,23 +202,10 @@ static int lpc_probe(struct spi_device *spi)
+ 	poweroff_device = &spi->dev;
+ 	pm_power_off = lpc_power_off;
+ 
+-	/* for MNT Pocket Reform with Display Version 2, the
+-	   system controller has to control the backlight
+-	   directly via PWM, but it must not do that on
+-	   other versions of the display. */
+-	__mnt_pocket_reform_get_panel_version =
+-		(void *)__symbol_get("mnt_pocket_reform_get_panel_version");
+-
+-	if (__mnt_pocket_reform_get_panel_version &&
+-	    __mnt_pocket_reform_get_panel_version() == 2) {
+-		printk(KERN_INFO
+-		       "%s: enabling backlight control for MNT Pocket Reform with Display Version 2.\n",
++	data->backlight = lpc_create_backlight(&spi->dev, data);
++	if (IS_ERR(data->backlight)) {
++		printk(KERN_ERR "%s: lpc_create_backlight failed\n",
+ 		       __func__);
+-		data->backlight = lpc_create_backlight(&spi->dev, data);
+-		if (IS_ERR(data->backlight)) {
+-			printk(KERN_ERR "%s: lpc_create_backlight failed\n",
+-			       __func__);
+-		}
+ 	}
+ 
+ 	return ret;
