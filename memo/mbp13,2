@@ -1,0 +1,27 @@
+# use gentoo sources
+cd /usr/src/linux
+
+# build
+A=x86
+W=/tmp/linux/mac
+D=/tmp/mnt/usb1
+
+source ~/build/kconfig/scripts/kmakeenv
+
+init_workdir ~/build/kconfig/apple-macbook_pro_13,2 &&
+kmake &&
+kmake modules &&
+uefi_install &&
+rkmake modules_install
+
+# touchbar
+# git clone https://github.com/almas/macbook12-spi-driver $W/macbook12-spi-driver
+git clone https://github.com/Heratiki/macbook12-spi-driver -b kernel-6.12.10-fixes $W/macbook12-spi-driver
+kmake M=$W/macbook12-spi-driver modules
+rkmake M=$W/macbook12-spi-driver modules_install
+
+# internal audio
+git clone https://github.com/egorenar/snd-hda-codec-cs8409 $W/snd-hda-codec-cs8409
+patch -p1 $W/snd-hda-codec-cs8409/patch_cirrus_apple.h < cs8409.patch
+kmake M=$W/snd-hda-codec-cs8409 CFLAGS_MODULE="-DAPPLE_PINSENSE_FIXUP -DAPPLE_CODECS -DCONFIG_SND_HDA_RECONFIG=1 -Wno-error" modules
+rkmake M=$W/snd-hda-codec-cs8409 modules_install
