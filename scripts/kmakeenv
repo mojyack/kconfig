@@ -2,6 +2,10 @@ make_args=(ARCH=$A CC=clang LLVM=1 O=$W -j$(nproc) INSTALL_MOD_PATH=$D)
 alias kmake="make $make_args"
 alias rkmake="doas make $make_args"
 
+init_workdir() {
+    mkdir -p "$W" && cp "$1" "$W/.config"
+}
+
 uefi_install() {
     doas mkdir -p "$D/boot/EFI/BOOT"
     doas mv "$D/boot/EFI/BOOT/BOOTX64.EFI"{,.bak} 2>/dev/null
