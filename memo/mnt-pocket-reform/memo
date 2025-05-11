@@ -1,4 +1,4 @@
-v=6.12.25
+v=6.14.6
 
 # download files
 curl -OL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$v.tar.xz
@@ -11,7 +11,7 @@ cd linux-$v
 # print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
 # mnt patches
-for patch in ../reform-debian-packages/linux/patches${v%.*}/{rk3588-mnt-reform2/*.patch, imx8mp-mnt-pocket-reform/pocket-panel/0001-v5-add-multi-display-panel-driver.patch}; do
+for patch in ../reform-debian-packages/linux/patches${v%.*}/rk3588-mnt-reform2/*.patch ../reform-debian-packages/linux/patches${v%.*}/imx8mp-mnt-pocket-reform/pocket-panel/0001-v5-add-multi-display-panel-driver.patch; do
     patch -p1 < "$patch" || break
 done
 # add dtb
