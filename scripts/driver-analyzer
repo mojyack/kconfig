@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# usage: driver-analyzer VENDOR/BOARD
+# usage: driver-analyzer /path/to/linux relative/path/to/dts
 
 import sys
 import os
@@ -113,9 +113,10 @@ def load_compatibles():
     return ret
 
 
-def compile_dts(machine):
-    args = "clang -x assembler-with-cpp -nostdinc -E -P -Iinclude".split(" ") + [
-        f"arch/arm64/boot/dts/{machine}.dts"
+def compile_dts(src, dts):
+    args = "clang -x assembler-with-cpp -nostdinc -E -P".split(" ") + [
+        f"-I{src}/include",
+        f"{src}/{dts}",
     ]
     # print(args)
 
@@ -132,19 +133,23 @@ def compile_dts(machine):
 
 
 def extract_devices_from_dts(dts):
+    found = set()
     ret = []
     for line in dts.split("\n"):
         if not "compatible " in line:
             continue
 
-        compatibles = line.strip().split(" ")[2:]
-        ret.append([compat[1:-2] for compat in compatibles])
+        compatibles = [e[1:-2] for e in line.strip().split(" ")[2:]]
+        key = "".join(compatibles)
+        if not key in found:
+            found.add(key)
+            ret.append(compatibles)
 
     return ret
 
 
 # returns (code,list)
-# code: 0 = ok, 1 = makefile nto found, 2 = possible result
+# code: 0 = ok, 1 = makefile not found, 2 = possible result
 def find_corresponding_config(file):
     makefile_path = os.path.dirname(file) + "/Makefile"
     if not os.path.exists(makefile_path):
@@ -167,49 +172,62 @@ def find_corresponding_config(file):
     return (2, ret)
 
 
+src = sys.argv[1]
+dts = sys.argv[2]
+
 if not os.path.exists(compatibles_cache_file):
     print("enumerating drivers")
-    compatibles = list_compatibles("drivers") + list_compatibles("sound")
+    compatibles = list_compatibles(f"{src}/drivers") + list_compatibles(f"{src}/sound")
     dump_compatibles(compatibles)
 else:
     print("using cache")
     compatibles = load_compatibles()
 
-dts = compile_dts(sys.argv[1])
+dts = compile_dts(src, dts)
+open(os.path.basename(sys.argv[2]), "w").write(dts)
 devices = extract_devices_from_dts(dts)
 
+found_sources = []  # list of [device, files...]
 missing_drivers = []
-required_sources = set()
 
 for device in devices:
-    found = False
+    sources = [device]
     for device_compatible in device:
         for driver_compatibles in compatibles:
             # exclude driver_compatibles[0] from search, since [0] is a file path
             if device_compatible in driver_compatibles[1:]:
-                required_sources.add(driver_compatibles[0])
-                found = True
-        if found:
-            break
+                sources.append(driver_compatibles[0])
 
-    if not found:
+    if len(sources) >= 2:
+        found_sources.append(sources)
+    else:
         missing_drivers.append(device)
 
 print(f"devices without driver({len(missing_drivers)}):")
 for driver in missing_drivers:
-    print("   ", driver)
+    print(f"    {driver}")
 
-print(f"found source files({len(required_sources)}):")
-for source in required_sources:
-    print("   ", source)
-    code, configs = find_corresponding_config(source)
-    match code:
-        case 0:
-            print("        makefile not found")
-        case 1:
-            for config in configs:
-                print("       ", config)
-        case 2:
-            print("       cannot find exact match")
-            if len(configs) == 1:
-                print("       possibly", configs[0])
+print(f"found source files({len(found_sources)}):")
+for source in found_sources:
+    device = source[0]
+    files = source[1:]
+    print(f"    {device}")
+    for file in files:
+        rel = file[len(src) + 1 :]
+        print(f"        {rel}")
+        code, configs = find_corresponding_config(file)
+
+        match code:
+            case 0:
+                print("            makefile not found")
+            case 1:
+                if len(configs) == 1:
+                    print("            exactly", configs[0])
+                else:
+                    for config in configs:
+                        print("            possibly", config)
+            case 2:
+                if len(configs) == 1:
+                    print("            possibly", configs[0])
+                else:
+                    print("            cannot find exact match")
