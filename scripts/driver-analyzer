@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# usage: driver-analyzer /path/to/linux relative/path/to/dts
+# usage: driver-analyzer /path/to/linux relative/path/to/dts (/path/to/reference/config)
 
 import sys
 import os
 import re
+import shlex
 import subprocess
 
 compatibles_cache_file = "compatibles-cache.txt"
@@ -172,8 +173,20 @@ def find_corresponding_config(file):
     return (2, ret)
 
 
+def load_config(file):
+    ret = {}
+    for line in open(file).read().splitlines():
+        elms = shlex.split(line, comments=True)
+        if len(elms) != 1:
+            continue
+        key, value = elms[0].split("=", 1)
+        ret[key] = value
+    return ret
+
+
 src = sys.argv[1]
 dts = sys.argv[2]
+ref = sys.argv[3] if len(sys.argv) >= 4 else None
 
 if not os.path.exists(compatibles_cache_file):
     print("enumerating drivers")
@@ -189,6 +202,13 @@ devices = extract_devices_from_dts(dts)
 
 found_sources = []  # list of [device, files...]
 missing_drivers = []
+reference_config = load_config(ref) if ref != None else {}
+
+
+def config_status(key):
+    value = reference_config.get(key, "n")
+    return f"({value})"
+
 
 for device in devices:
     sources = [device]
@@ -222,12 +242,12 @@ for source in found_sources:
                 print("            makefile not found")
             case 1:
                 if len(configs) == 1:
-                    print("            exactly", configs[0])
+                    print("            exactly", configs[0], config_status(configs[0]))
                 else:
                     for config in configs:
-                        print("            possibly", config)
+                        print("            possibly", config, config_status(configs[0]))
             case 2:
                 if len(configs) == 1:
-                    print("            possibly", configs[0])
+                    print("            possibly", configs[0], config_status(configs[0]))
                 else:
                     print("            cannot find exact match")
