@@ -1,0 +1,14 @@
+diff --git a/lpc/reform2_lpc.c b/lpc/reform2_lpc.c
+index c4f2fac..17e606c 100644
+--- a/lpc/reform2_lpc.c
++++ b/lpc/reform2_lpc.c
+@@ -226,8 +226,7 @@ static int lpc_probe(struct spi_device *spi)
+ 	__mnt_pocket_reform_get_panel_version =
+ 		(void *)__symbol_get("mnt_pocket_reform_get_panel_version");
+ 
+-	if (__mnt_pocket_reform_get_panel_version &&
+-	    __mnt_pocket_reform_get_panel_version() == 2) {
++	if (1) {
+ 		dev_info(
+ 			&spi->dev,
+ 			"enabling backlight control for MNT Pocket Reform with Display Version 2.\n");
