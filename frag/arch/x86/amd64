@@ -1,0 +1,89 @@
+CONFIG_64BIT=y
+
+# General setup {
+    CONFIG_KERNEL_ZSTD=y
+    
+    # EXPERT {
+        CONFIG_PCSPKR_PLATFORM=y
+    # } EXPERT
+# } General setup
+
+# Processor type and features {
+    CONFIG_SMP=y
+    CONFIG_SCHED_OMIT_FRAME_POINTER=y
+    CONFIG_PROCESSOR_SELECT=y
+    CONFIG_DMI=y
+    CONFIG_NR_CPUS=128
+    CONFIG_SCHED_CLUSTER=y
+    CONFIG_SCHED_MC=y
+    CONFIG_SCHED_MC_PRIO=y
+    CONFIG_X86_REROUTE_FOR_BROKEN_BOOT_IRQS=y
+
+    CONFIG_X86_MCE=y
+
+    CONFIG_X86_MSR=m
+    CONFIG_X86_CPUID=m
+    CONFIG_MTRR=y
+    # MTRR {
+        CONFIG_MTRR_SANITIZER=y
+        CONFIG_MTRR_SANITIZER_ENABLE_DEFAULT=1
+        CONFIG_MTRR_SANITIZER_SPARE_REG_NR_DEFAULT=0
+        CONFIG_X86_PAT=y
+    # } MTRR
+    CONFIG_RELOCATABLE=y
+    CONFIG_LEGACY_VSYSCALL_NONE=y
+# } Processor type and features
+
+# Power management and ACPI options {
+    CONFIG_X86_PM_TIMER=y
+# } Power management and ACPI options
+
+# CPU frequency scaling drivers {
+    CONFIG_X86_INTEL_PSTATE=y
+    CONFIG_X86_AMD_PSTATE=y
+    CONFIG_X86_AMD_PSTATE_DEFAULT_MODE=3
+    CONFIG_X86_ACPI_CPUFREQ=m
+# } CPU frequency scaling drivers
+
+# Bus options {
+    CONFIG_PCI_MMCONFIG=y
+    CONFIG_ISA_DMA_API=y
+# } Bus options
+
+# General architecture-dependent options {
+    CONFIG_ARCH_MMAP_RND_BITS=28
+    CONFIG_ARCH_MMAP_RND_COMPAT_BITS=8
+    CONFIG_PAGE_SIZE_4KB=y
+# } General architecture-dependent options
+
+CONFIG_PNP=y
+
+# Firmware Drivers {
+    CONFIG_DMIID=y
+    CONFIG_DMI_SYSFS=y
+# } Firmware Drivers
+
+
+# Character devices {
+    CONFIG_HPET=y
+    # HPET {
+        CONFIG_HPET_MMAP=y
+        CONFIG_HPET_MMAP_DEFAULT=y
+    # } HPET
+# } Character devices
+
+CONFIG_MAILBOX=y
+CONFIG_PCC=y
+
+# Cryptographic API {
+    # Crypto core or helper {
+        CONFIG_CRYPTO_CRYPTD=m
+        CONFIG_CRYPTO_SIMD=m
+    # } Crypto core or helper
+# } Cryptographic API
+
+# x86 Debugging {
+    CONFIG_EARLY_PRINTK=y
+    CONFIG_IO_DELAY_0X80=y
+    CONFIG_UNWINDER_ORC=y
+# } x86 Debugging

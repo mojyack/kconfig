@@ -1,0 +1,19 @@
+CONFIG_EFI=y
+
+# Firmware Drivers {
+    CONFIG_SYSFB_SIMPLEFB=y
+    # EFI (Extensible Firmware Interface) Support {
+        CONFIG_EFI_VARS_PSTORE=y
+        CONFIG_EFI_DXE_MEM_ATTRIBUTES=y
+        CONFIG_EFI_RCI2_TABLE=y
+        CONFIG_EFI_CUSTOM_SSDT_OVERLAYS=y
+    # } EFI (Extensible Firmware Interface) Support
+# } Firmware Drivers
+
+# Frame buffer Devices {
+    CONFIG_FB_EFI=y
+# } Frame buffer Devices
+
+# Pseudo filesystems {
+    CONFIG_EFIVAR_FS=m
+# } Pseudo filesystems

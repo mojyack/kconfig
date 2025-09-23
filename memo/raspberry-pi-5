@@ -1,0 +1,7 @@
+A=arm64;W=/tmp/linux/rpi5;D="/mnt";source ~/build/kconfig/scripts/kmakeenv
+kmake Image.gz && kmake modules && kmake dtbs
+rkmake modules_install
+doas cp $W/arch/arm64/boot/Image.gz $D/boot/kernel_2712.img
+doas cp $W/arch/arm64/boot/dts/broadcom/bcm2712-rpi-5-b.dtb $D/boot
+doas mkdir -p $D/boot/overlays
+doas cp -r $W/arch/arm64/boot/dts/overlays/*.dtbo $D/boot/overlays

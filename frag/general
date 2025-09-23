@@ -1,0 +1,497 @@
+include /generated/init/Kconfig
+include /generated/arch/Kconfig
+include /generated/fs/Kconfig.binfmt
+include /generated/net/Kconfig
+include /generated/drivers/Kconfig
+include /generated/fs/Kconfig
+include /generated/mm/Kconfig
+include /generated/security/Kconfig
+include /generated/crypto/Kconfig
+include /generated/lib/Kconfig
+include /generated/lib/Kconfig.debug
+include /generated/distro/Kconfig
+
+if arch == amd64
+    include /generated/arch/x86/Kconfig
+    include /generated/arch/x86/Kconfig.debug
+fi
+if arch == arm64
+    include /generated/arch/arm64/Kconfig
+    include /generated/arch/arm64/Kconfig.debug
+fi
+
+# General setup {
+    CONFIG_LOCALVERSION_AUTO=y
+    CONFIG_SYSVIPC=y
+    CONFIG_POSIX_MQUEUE=y
+    CONFIG_WATCH_QUEUE=y
+    CONFIG_CROSS_MEMORY_ATTACH=y
+
+    # Timers subsystem {
+        CONFIG_NO_HZ_IDLE=y
+        CONFIG_HIGH_RES_TIMERS=y
+    # } Timers subsystem
+
+    # BPF subsystem {
+        CONFIG_BPF_SYSCALL=y
+        CONFIG_BPF_JIT=y
+        CONFIG_BPF_JIT_ALWAYS_ON=y
+    # } BPF subsystem
+
+    CONFIG_PREEMPT_NONE=y
+
+    # CPU/Task time and stats accounting {
+        CONFIG_TICK_CPU_ACCOUNTING=y
+        CONFIG_BSD_PROCESS_ACCT=y
+        CONFIG_BSD_PROCESS_ACCT_V3=y
+    # } CPU/Task time and stats accounting
+
+    CONFIG_IKCONFIG=m
+    CONFIG_IKCONFIG_PROC=y
+
+    # CGroup {
+        CONFIG_CGROUPS=y
+        CONFIG_CGROUP_FREEZER=y
+    # } CGroup
+
+    # Namesapces {
+        CONFIG_NAMESPACES=y
+        CONFIG_UTS_NS=y
+        CONFIG_TIME_NS=y
+        CONFIG_IPC_NS=y
+        CONFIG_USER_NS=y
+        CONFIG_PID_NS=y
+        CONFIG_NET_NS=y
+    # } Namesapces
+
+    CONFIG_SCHED_AUTOGROUP=y
+    CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE=y
+
+    CONFIG_EXPERT=y
+    # EXPERT {
+        CONFIG_UID16=n
+        CONFIG_MULTIUSER=y
+        CONFIG_SGETMASK_SYSCALL=y
+        CONFIG_SYSFS_SYSCALL=y
+        CONFIG_FHANDLE=y
+        CONFIG_POSIX_TIMERS=y
+        CONFIG_PRINTK=y
+        CONFIG_BUG=y
+        CONFIG_ELF_CORE=y
+        CONFIG_FUTEX=y
+        CONFIG_EPOLL=y
+        CONFIG_SIGNALFD=y
+        CONFIG_TIMERFD=y
+        CONFIG_EVENTFD=y
+        CONFIG_SHMEM=y
+        CONFIG_AIO=y
+        CONFIG_IO_URING=y
+    # } EXPERT
+
+    CONFIG_ADVISE_SYSCALLS=y
+    CONFIG_MEMBARRIER=y
+    CONFIG_KCMP=y
+    CONFIG_RSEQ=y
+    CONFIG_CACHESTAT_SYSCALL=y
+    CONFIG_KALLSYMS=y
+
+    # Kernel Performance Events And Counters {
+        CONFIG_PERF_EVENTS=y
+    # } Kernel Performance Events And Counters
+# } General setup
+
+# Processor type and features {
+    CONFIG_HZ_300=y
+# } Processor type and features
+
+# Power management and ACPI options {
+    CONFIG_SUSPEND=y
+    CONFIG_SUSPEND_FREEZER=y
+    CONFIG_PM_WAKELOCKS=y
+    CONFIG_PM_WAKELOCKS_GC=y
+    CONFIG_PM=y
+    CONFIG_WQ_POWER_EFFICIENT_DEFAULT=y
+    CONFIG_ENERGY_MODEL=y # TODO: required?
+
+    # CPU Frequency scaling {
+        CONFIG_CPU_FREQ=y
+        CONFIG_CPU_FREQ_STAT=y
+        CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL=y
+        CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
+        CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+        CONFIG_CPU_FREQ_GOV_SCHEDUTIL=y
+    # } CPU Frequency scaling
+# } Power management and ACPI options
+
+# General architecture-dependent options {
+    CONFIG_JUMP_LABEL=y
+    CONFIG_SECCOMP=y
+    CONFIG_LTO_CLANG_THIN=y
+    CONFIG_RANDOMIZE_KSTACK_OFFSET=y
+# } General architecture-dependent options
+
+CONFIG_MODULES=y
+# MODULES {
+    CONFIG_MODULE_FORCE_LOAD=y
+    CONFIG_MODULE_UNLOAD=y
+    CONFIG_MODULE_FORCE_UNLOAD=y
+    CONFIG_MODULE_ALLOW_MISSING_NAMESPACE_IMPORTS=y
+# } MODULES
+
+CONFIG_BLOCK=y
+# BLOCK {
+    # Partition Types {
+        CONFIG_PARTITION_ADVANCED=y
+        CONFIG_MAC_PARTITION=y
+        CONFIG_MSDOS_PARTITION=y
+        # MSDOS_PARTITION {
+            CONFIG_BSD_DISKLABEL=y
+        # } MSDOS_PARTITION
+        CONFIG_LDM_PARTITION=y
+        CONFIG_EFI_PARTITION=y
+    # } Partition Types
+# }BLOCK
+
+# Executable file formats {
+    CONFIG_BINFMT_ELF=y
+    CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS=y
+    CONFIG_BINFMT_SCRIPT=y
+    CONFIG_BINFMT_MISC=m
+    CONFIG_COREDUMP=y
+# } Executable file formats
+
+# Memory Management options {
+    # Slab allocator options {
+        CONFIG_SLAB_MERGE_DEFAULT=y
+        CONFIG_SLUB_CPU_PARTIAL=y
+    # } Slab allocator options
+
+    CONFIG_COMPAT_BRK=y
+    CONFIG_SPARSEMEM_VMEMMAP=y
+    CONFIG_COMPACTION=y
+    CONFIG_MIGRATION=y
+    CONFIG_KSM=y
+    CONFIG_TRANSPARENT_HUGEPAGE=y
+    # TRANSPARENT_HUGEPAGE {
+        CONFIG_TRANSPARENT_HUGEPAGE_MADVISE=y
+        CONFIG_READ_ONLY_THP_FOR_FS=y
+    # } TRANSPARENT_HUGEPAGE
+    CONFIG_ZONE_DMA=y
+    CONFIG_ZONE_DMA32=y
+    CONFIG_MEMFD_CREATE=y
+    CONFIG_SECRETMEM=y
+    CONFIG_USERFAULTFD=y
+    # USERFAULTFD {
+        CONFIG_PTE_MARKER_UFFD_WP=y
+    # } USERFAULTFD
+# } Memory Management options
+
+CONFIG_NET=y
+# NET {
+    # Networking options {
+        CONFIG_PACKET=m
+        CONFIG_UNIX=y
+        CONFIG_INET=y
+        # INET {
+            CONFIG_IPV6=y
+        # } INET
+        CONFIG_PCPU_DEV_REFCNT=y
+        CONFIG_CGROUP_NET_PRIO=y
+        CONFIG_CGROUP_NET_CLASSID=y
+    # } Networking options
+# } NET
+
+# Device Drivers {
+    # Generic Driver Options {
+        CONFIG_DEVTMPFS=y
+        CONFIG_DEVTMPFS_MOUNT=y
+        CONFIG_STANDALONE=y
+        CONFIG_PREVENT_FIRMWARE_BUILD=y
+        # Firmware loader {
+            CONFIG_FW_LOADER=y
+            CONFIG_FW_CACHE=y
+        # } Firmware loader
+        CONFIG_ALLOW_DEV_COREDUMP=y
+    # } Generic Driver Options
+
+    # Block devices {
+        CONFIG_BLK_DEV=y
+        CONFIG_BLK_DEV_LOOP=m
+        # LOOP {
+            CONFIG_BLK_DEV_LOOP_MIN_COUNT=0
+        # } LOOP
+    # } Block devices
+
+    # SCSI device support {
+        CONFIG_SCSI=m  # USB_STORAGE
+    # } SCSI device support
+
+    CONFIG_NETDEVICES=y
+    # NETDEVICES {
+        CONFIG_NET_CORE=y
+    # } NETDEVICES
+
+    # Input device support {
+        CONFIG_INPUT=y
+        CONFIG_INPUT_SPARSEKMAP=m
+        CONFIG_INPUT_MOUSEDEV=m
+        CONFIG_INPUT_EVDEV=m
+        CONFIG_INPUT_KEYBOARD=y
+        CONFIG_INPUT_MOUSE=y
+        CONFIG_INPUT_JOYSTICK=y
+        CONFIG_INPUT_TABLET=y
+        CONFIG_INPUT_TOUCHSCREEN=y
+        CONFIG_INPUT_MISC=y
+    # } Input device support
+
+    # Character devices {
+        CONFIG_TTY=y
+        # TTY {
+            CONFIG_VT=y
+            # VT {
+                CONFIG_CONSOLE_TRANSLATIONS=y
+                CONFIG_VT_CONSOLE=y
+                CONFIG_VT_HW_CONSOLE_BINDING=y
+            # } VT
+
+            CONFIG_UNIX98_PTYS=y
+            CONFIG_LDISC_AUTOLOAD=y
+        # } TTY
+
+        CONFIG_DEVMEM=y
+    # } Character devices
+
+    # I2C support {
+        CONFIG_I2C=y
+    # } I2C support
+
+    CONFIG_POWER_SUPPLY=y
+    CONFIG_HWMON=y
+    CONFIG_THERMAL=y
+    # THERMAL {
+        CONFIG_THERMAL_HWMON=y
+        CONFIG_THERMAL_DEFAULT_GOV_STEP_WISE=y
+        CONFIG_THERMAL_GOV_STEP_WISE=y
+    # } THERMAL
+    CONFIG_MEDIA_SUPPORT=m
+    # MEDIA_SUPPORT {
+        # Media device types {
+            CONFIG_MEDIA_CAMERA_SUPPORT=y
+            CONFIG_MEDIA_ANALOG_TV_SUPPORT=y
+            CONFIG_MEDIA_DIGITAL_TV_SUPPORT=y
+            CONFIG_MEDIA_RADIO_SUPPORT=y
+            CONFIG_MEDIA_SDR_SUPPORT=y
+            CONFIG_MEDIA_PLATFORM_SUPPORT=y
+            CONFIG_MEDIA_TEST_SUPPORT=y
+        # } Media device types
+
+        # Media core support {
+            CONFIG_VIDEO_DEV=m
+            CONFIG_MEDIA_CONTROLLER=y
+        # } Media core support
+
+        # Media drivers {
+            CONFIG_MEDIA_USB_SUPPORT=y
+            # USB_SUPPORT {
+                # Webcam devices
+                CONFIG_USB_VIDEO_CLASS=m
+                CONFIG_USB_VIDEO_CLASS_INPUT_EVDEV=y
+            # } USB_SUPPORT
+        # } Media drivers
+    # } MEDIA_SUPPORT
+
+    # Graphics support {
+        CONFIG_DRM=y
+        # DRM {
+            CONFIG_DRM_FBDEV_EMULATION=y
+            CONFIG_DRM_LOAD_EDID_FIRMWARE=y
+            CONFIG_DRM_SIMPLEDRM=y
+        # } DRM
+
+        # Frame buffer Devices {
+            CONFIG_FB=y
+            CONFIG_FIRMWARE_EDID=y
+            CONFIG_FB_MODE_HELPERS=y
+            CONFIG_FB_TILEBLITTING=y
+        # } Frame buffer Devices
+
+        # Backlight & LCD device support {
+            CONFIG_BACKLIGHT_CLASS_DEVICE=y
+        # } Backlight & LCD device support
+
+        # Console display driver support {
+            CONFIG_VGA_CONSOLE=y
+            CONFIG_FRAMEBUFFER_CONSOLE=y
+            CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
+            CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
+            CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER=y
+        # } Console display driver support
+    # } Graphics support
+
+    CONFIG_HID_SUPPORT=y
+    # HID_SUPPORT {
+        CONFIG_HID=y
+        # HID {
+            CONFIG_HID_GENERIC=m
+        # } HID
+
+        # USB HID support {
+            CONFIG_USB_HID=m
+            CONFIG_HID_PID=y
+            CONFIG_USB_HIDDEV=y
+        # } USB HID support
+    # } HID_SUPPORT
+
+    # USB support {
+        CONFIG_USB_SUPPORT=y
+        CONFIG_USB=m
+        CONFIG_USB_PCI=y
+        CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
+
+        # Miscellaneous USB options
+        CONFIG_USB_DEFAULT_PERSIST=y
+        CONFIG_USB_DYNAMIC_MINORS=y
+
+        CONFIG_USB_STORAGE=m
+    # } USB support
+
+    # DMABUF options {
+        CONFIG_SYNC_FILE=y
+        CONFIG_UDMABUF=y
+        CONFIG_DMABUF_HEAPS=y
+        CONFIG_DMABUF_HEAPS_SYSTEM=y
+    # } DMABUF options
+# } Device Drivers
+
+# File systems {
+    CONFIG_VALIDATE_FS_PARSER=y
+    CONFIG_EXT4_FS=y
+    # EXT4 {
+        CONFIG_EXT4_USE_FOR_EXT2=y
+        CONFIG_EXT4_FS_POSIX_ACL=y
+        CONFIG_EXT4_FS_SECURITY=y
+    # } EXT4
+    CONFIG_EXPORTFS_BLOCK_OPS=y
+    CONFIG_FS_POSIX_ACL=y
+    CONFIG_FILE_LOCKING=y
+    CONFIG_DNOTIFY=y
+    CONFIG_INOTIFY_USER=y
+    CONFIG_FANOTIFY=y
+    CONFIG_FUSE_FS=m
+    # FUSE {
+        CONFIG_CUSE=m
+        CONFIG_FUSE_PASSTHROUGH=y
+    # } FUSE
+    CONFIG_OVERLAY_FS=m
+    # OVERLAY_FS {
+        CONFIG_OVERLAY_FS_REDIRECT_ALWAYS_FOLLOW=y
+    # } OVERLAY_FS
+
+    # DOS/FAT/EXFAT/NT Filesystems {
+        CONFIG_VFAT_FS=m
+        CONFIG_FAT_DEFAULT_UTF8=y
+        CONFIG_EXFAT_FS=m
+        CONFIG_NTFS3_FS=m
+    # } DOS/FAT/EXFAT/NT Filesystems
+
+    # Pseudo filesystems {
+        CONFIG_PROC_FS=y
+        # PROC_FS {
+            CONFIG_PROC_KCORE=y
+            CONFIG_PROC_SYSCTL=y
+            CONFIG_PROC_PAGE_MONITOR=y
+            CONFIG_PROC_CHILDREN=y
+        # } PROC_FS
+        CONFIG_SYSFS=y
+        CONFIG_TMPFS=y
+        # TMPFS {
+            CONFIG_TMPFS_POSIX_ACL=y
+            CONFIG_TMPFS_XATTR=y
+        # } TMPFS
+        CONFIG_HUGETLBFS=y
+        CONFIG_CONFIGFS_FS=y
+    # } Pseudo filesystems
+
+    CONFIG_MISC_FILESYSTEMS=y
+    # Miscellaneous filesystems {
+        CONFIG_PSTORE=y
+        # PSTORE {
+            CONFIG_PSTORE_COMPRESS=y
+        # } PSTORE
+    # } Miscellaneous filesystems
+
+    CONFIG_NETWORK_FILESYSTEMS=y
+
+    CONFIG_NLS=y
+    # NLS {
+        CONFIG_NLS_DEFAULT="utf8"
+        CONFIG_NLS_CODEPAGE_437=m
+        CONFIG_NLS_ISO8859_1=m
+        CONFIG_NLS_UTF8=m
+    # } NLS
+# } File systems
+
+# Security options {
+    CONFIG_KEYS=y
+    CONFIG_KEYS_REQUEST_CACHE=y
+    CONFIG_PERSISTENT_KEYRINGS=y
+    CONFIG_KEY_DH_OPERATIONS=y
+    CONFIG_KEY_NOTIFICATIONS=y
+    CONFIG_PROC_MEM_ALWAYS_FORCE=y
+    CONFIG_DEFAULT_SECURITY_DAC=y
+    CONFIG_LSM=""
+    # Kernel hardening options {
+        # Memory initialization {
+            CONFIG_INIT_STACK_NONE=y
+        # } Memory initialization
+        CONFIG_RANDSTRUCT_NONE=y
+    # } Kernel hardening options
+# } Security options
+
+CONFIG_CRYPTO=y
+# Cryptographic API {
+    # Crypto core or helper {
+        CONFIG_CRYPTO_MANAGER=y
+        CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
+        CONFIG_CRYPTO_NULL=y
+    # } Crypto core or helper
+
+    # Public-key cryptography {
+        CONFIG_CRYPTO_RSA=y
+        CONFIG_CRYPTO_DH=y
+    # } Public-key cryptography
+
+    # Random number generation {
+        CONFIG_CRYPTO_JITTERENTROPY=m
+    # } Random number generation
+
+    # Certificates for signature checking {
+        CONFIG_SYSTEM_TRUSTED_KEYRING=y
+    # } Certificates for signature checking
+# } Cryptographic API
+
+# Library routines {
+    CONFIG_PACKING=y
+    CONFIG_CRC_OPTIMIZATIONS=y
+    CONFIG_CRC32_SLICEBY8=y
+    CONFIG_FONTS=y
+    # FONTS {
+        CONFIG_FONT_8x16=y
+    # } FONTS
+# } Library routines
+
+# Kernel hacking {
+    # printk and dmesg options {
+        CONFIG_PRINTK_TIME=y
+    # } printk and dmesg options
+    # Compile-time checks and compiler options {
+        CONFIG_DEBUG_INFO_NONE=y
+        CONFIG_STRIP_ASM_SYMS=y
+        CONFIG_SECTION_MISMATCH_WARN_ONLY=y
+    # } Compile-time checks and compiler options
+
+    CONFIG_STACKTRACE=y
+
+    CONFIG_STRICT_DEVMEM=y
+    CONFIG_IO_STRICT_DEVMEM=y
+# } Kernel hacking

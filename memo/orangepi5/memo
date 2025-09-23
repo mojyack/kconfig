@@ -7,9 +7,10 @@ popd
 # create build directory
 mkdir build
 cp ~/build/kconfig/oneplus-oneplus_6 build/.config
+ln -s build/arch/arm64/boot boot
 
 # prepare kernel
-git clone --depth=1 https://gitlab.com/sdm845-mainline/linux.git -b sdm845/6.13-release
+git clone --depth=1 https://gitlab.com/sdm845-mainline/linux -b sdm845/6.9-release
 pushd linux
 ## print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
@@ -18,26 +19,22 @@ sed -i 's/dr_mode = "peripheral"/dr_mode = "host"/' arch/arm64/boot/dts/qcom/sdm
 ## additional patches
 patch -p1 < msm-dpu-supress-warnings.patch
 
-mc usb1
-
 # build kernel
-A=arm64
-W=$PWD/../build
-D=/tmp/mnt/usb1
-
-source ~/build/kconfig/scripts/kmakeenv
-
-init_workdir ~/build/kconfig/oneplus-oneplus_6 &&
-kmake oldconfig  &&
-kmake Image.gz &&
-kmake modules &&
-kmake dtbs &&
-rkmake modules_install
+make_args=(ARCH=arm64 CC=clang LLVM=1 O=$PWD/../build -j$(nproc))
+alias kmake="make $make_args"
+kmake oldconfig
+kmake Image.gz
+kmake modules
+kmake dtbs
 popd
 
 # install
-~/build/kconfig/memo/oneplus6/create-boot-image.sh build/arch/arm64/boot/{Image.gz,dts/qcom/sdm845-oneplus-enchilada.dtb} boot_m.img
-doas cp boot_m.img /tmp/mnt/usb1/boot
+./create-boot-image.sh boot/Image.gz boot/dts/qcom/sdm845-oneplus-enchilada.dtb boot_m.img
+doas mount usb1:/ /mnt
+pushd linux
+doas sh -c "INSTALL_MOD_PATH=/mnt make $make_args modules_install"
+doas cp ../boot_m.img /mnt/boot
+doas umount /mnt
 popd
 
 # in target device

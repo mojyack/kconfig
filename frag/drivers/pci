@@ -1,0 +1,27 @@
+CONFIG_PCI=y
+# PCI {
+    CONFIG_PCIEPORTBUS=y
+    # PCIEPORTBUS {
+        CONFIG_PCIEAER=y
+        # PCIEAER {
+            CONFIG_PCIE_ECRC=y
+        # } PCIEAER
+    # } PCIEPORTBUS
+
+    CONFIG_PCIEASPM=y
+    # PCIEASPM {
+        CONFIG_PCIEASPM_DEFAULT=y
+    # } PCIEASPM
+
+    CONFIG_PCIE_DPC=y
+    CONFIG_PCIE_PTM=y
+    if arch == amd64
+        CONFIG_PCIE_EDR=y # ACPI
+    fi
+    CONFIG_PCI_MSI=y
+    CONFIG_PCI_QUIRKS=y
+    CONFIG_PCI_PRI=y
+    CONFIG_PCI_PASID=y
+    CONFIG_PCIE_BUS_DEFAULT=y
+    CONFIG_VGA_ARB=y
+# } PCI

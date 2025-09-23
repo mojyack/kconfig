@@ -1,0 +1,3 @@
+# download latest artifacts from https://source.mnt.re/reform/pocket-reform/-/artifacts
+curl -o artifacts.zip -L "https://source.mnt.re/reform/pocket-reform/-/jobs/13106/artifacts/download?file_type=archive"
+unzip artifacts.zip

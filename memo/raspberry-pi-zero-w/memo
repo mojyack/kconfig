@@ -3,7 +3,7 @@ mkdir build
 cp ~/build/kconfig/raspberrypi-raspberrypi_zero_w build/.config
 
 # prepare kernel
-git clone --depth=1 -b rpi-6.6.y https://github.com/raspberrypi/linux/
+git clone --depth=1 -b rpi-6.12.y https://github.com/raspberrypi/linux/
 pushd linux
 ## print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1

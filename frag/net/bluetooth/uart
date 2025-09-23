@@ -1,0 +1,6 @@
+include menu
+
+CONFIG_BT_HCIUART=m
+# BT_HCIUART {
+    CONFIG_BT_HCIUART_H4=y
+# } BT_HCIUART

@@ -1,0 +1,4 @@
+include menu
+
+CONFIG_SND_USB=y
+CONFIG_SND_USB_AUDIO=m

@@ -1,0 +1,4 @@
+include ../drivers/sata
+CONFIG_BLK_DEV_SD=y
+CONFIG_ATA=y
+CONFIG_SATA_AHCI=y

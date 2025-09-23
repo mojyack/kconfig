@@ -1,0 +1,214 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import shlex
+import argparse
+
+# parse arguments
+parser = argparse.ArgumentParser(
+    description="generate structured kconfig template from linux source tree"
+)
+parser.add_argument("repo", help="path to linux source tree")
+parser.add_argument("kconfig", help="relative path to root Kconfig file")
+parser.add_argument(
+    "-o", "--output-dir", help="where to dump generated files", default="."
+)
+parser.add_argument(
+    "--include-prefix", help='insert prefix to each "include" statement', default=""
+)
+args = parser.parse_args()
+
+# per-file state
+indents = []
+output_buf = []
+
+
+def output(string):
+    indent = " " * 4 * len(indents)
+    line = f"{indent}{string}"
+    # print(line)
+    output_buf.append(line + "\n")
+
+
+def dump_output_buf(path):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path, "w").writelines(output_buf)
+
+
+def count_whitespace(string):
+    count = 0
+    for c in string:
+        if c == " ":
+            count += 1
+        elif c == "\t":
+            count += 8
+        else:
+            break
+    # print(f"whitespace {string} {count}")
+    return count
+
+
+def is_int(string):
+    try:
+        int(string)
+        return True
+    except ValueError:
+        return False
+
+
+def get_default_value(block):
+    if "default" in block:
+        return block["default"]
+    elif "range" in block:
+        return block["range"][0]
+    else:
+        return None
+
+
+def flush_block(block):
+    match block.get("type"):
+        case "config" | "menuconfig":
+            if "prompt" in block:
+                match block["value_type"]:
+                    case "bool" | "tristate":
+                        value = "n"
+                    case "string":
+                        value = '"' + block.get("default", "") + '"'
+                    case "int":
+                        value = get_default_value(block)
+                        if value != None and not is_int(value):
+                            value = None
+                    case "hex":
+                        value = get_default_value(block)
+                        if value != None and not value.startswith("0x"):
+                            value = None
+                if value != None:
+                    output(f'CONFIG_{block["name"]}={value}')
+                else:
+                    print(f'no default value for {block["name"]}')
+        case "menu":
+            prompt = "(menu) " + block["prompt"]
+            output(f"# {prompt} {{")
+            indents.append(prompt)
+        case "choice":
+            assert "prompt" in block
+            prompt = "(choice) " + block["prompt"]
+            output(f"# {prompt} {{")
+            indents.append(prompt)
+        case "comment":
+            output(f'# {block["prompt"]}')
+        case None:
+            pass
+        case _:
+            raise RuntimeError('unknown block type {block["type"]}')
+    block.clear()
+
+
+def process_file(file):
+    global indents
+    global output_buf
+
+    block = {}
+
+    lines = open(file).read().splitlines()
+
+    # merge escaped lines
+    i = 0
+    while i < len(lines):
+        if len(lines[i]) > 0 and lines[i][0] != "#" and lines[i][-1] == "\\":
+            j = i + 1
+            while j < len(lines) and lines[i][-1] == "\\":
+                lines[i] = lines[i][:-1] + lines[j]
+                lines[j] = ""
+                j += 1
+        else:
+            i += 1
+
+    i = 0
+    try:
+        while i < len(lines):
+            elms = shlex.split(lines[i], comments=True)
+            # print(elms)
+            if len(elms) == 0:
+                i += 1
+                continue
+            if "type" in block:
+                match elms[0]:
+                    case "bool" | "tristate" | "string" | "int" | "hex":
+                        block["value_type"] = elms[0]
+                        if len(elms) >= 2:
+                            block["prompt"] = elms[1]
+                    case "prompt":
+                        block["prompt"] = elms[1]
+                    case "default":
+                        block["default"] = elms[1]
+                    case "range":
+                        block["range"] = elms[1:]
+                    case "help":
+                        tab_count = None
+                        if len(elms) >= 2:
+                            tab_count = count_whitespace(lines[i])
+                        i += 1
+                        while i < len(lines):
+                            if len(lines[i]) > 0 and not lines[i].isspace():
+                                if tab_count != None:
+                                    if count_whitespace(lines[i]) < tab_count:
+                                        break
+                                else:
+                                    tab_count = count_whitespace(lines[i])
+                            i += 1
+                        i -= 1
+                    case "def_bool" | "def_tristate":
+                        block["value_type"] = elms[0][4:]
+                    case "select" | "depends" | "imply" | "visible" | "modules":
+                        pass
+                    case _:
+                        flush_block(block)
+                        i -= 1
+                i += 1
+                continue
+
+            match elms[0]:
+                case "config" | "menuconfig":
+                    block["type"] = elms[0]
+                    block["name"] = elms[1]
+                case "if":
+                    cond = "if " + elms[1]
+                    output(f"# {cond} {{")
+                    indents.append(cond)
+                case "endif" | "endmenu" | "endchoice":
+                    cond = indents.pop()
+                    output(f"# }} {cond}")
+                case "menu":
+                    block["type"] = elms[0]
+                    block["prompt"] = elms[1]
+                case "choice":
+                    block["type"] = elms[0]
+                case "comment":
+                    block["type"] = elms[0]
+                    block["prompt"] = elms[1]
+                case "source":
+                    rel = elms[1]
+                    if os.path.exists(f"{args.repo}/{rel}"):
+                        indents_save = indents
+                        indents = []
+                        output_buf_save = output_buf
+                        output_buf = []
+                        process_file(f"{args.repo}/{rel}")
+                        indents = indents_save
+                        dump_output_buf(f"{args.output_dir}/{rel}")
+                        output_buf = output_buf_save
+                        output(f"include {args.include_prefix}{rel}")
+                case _:
+                    raise RuntimeError(f"unknown statement elms={elms}")
+            i += 1
+        flush_block(block)
+    except Exception as e:
+        print(e)
+        print(f'error occured while processing {file}:{i} "{lines[i]}"')
+        raise e
+
+
+process_file(f"{args.repo}/{args.kconfig}")
+dump_output_buf(f"{args.output_dir}/{args.kconfig}")

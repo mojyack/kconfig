@@ -1,0 +1,23 @@
+CONFIG_BT=m
+# BT {
+    CONFIG_BT_BREDR=y
+    # BREDR {
+        CONFIG_BT_RFCOMM=m
+        # RFCOMM {
+            CONFIG_BT_RFCOMM_TTY=y
+        # } RFCOMM
+        CONFIG_BT_BNEP=m
+        # BNEP {
+            CONFIG_BT_BNEP_MC_FILTER=y
+            CONFIG_BT_BNEP_PROTO_FILTER=y
+        # } BNEP
+        CONFIG_BT_HIDP=m
+    # } BREDR
+
+    CONFIG_BT_LE=y
+    # LE {
+        CONFIG_BT_LE_L2CAP_ECRED=y
+    # } LE
+
+    CONFIG_BT_MSFTEXT=y
+# } BT

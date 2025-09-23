@@ -1,0 +1,10 @@
+CONFIG_VFIO=y
+# VFIO {
+    CONFIG_VFIO_GROUP=y
+    CONFIG_VFIO_CONTAINER=y
+
+    # VFIO support for PCI devices {
+        CONFIG_VFIO_PCI=y
+        CONFIG_VFIO_PCI_VGA=y
+    # } VFIO support for PCI devices
+# } VFIO

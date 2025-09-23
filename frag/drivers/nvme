@@ -1,0 +1,4 @@
+# NVME Support {
+    CONFIG_BLK_DEV_NVME=m
+    CONFIG_NVME_MULTIPATH=y
+# } NVME Support
