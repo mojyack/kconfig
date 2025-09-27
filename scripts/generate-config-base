@@ -1,17 +1,19 @@
 #!/bin/zsh
 # $1 path/to/linux
+# $2 path/to/output-dir
 
 set -e
 
+scripts=${0:a:h}
 linux=${1:a}
-cd "${0:a:h}/.."
+output=${2}
 
 generate() {
     if [[ -e "$linux/$1" ]]; then
-        scripts/extract-kconfigs --include-prefix=/generated/ -o generated "$linux" "$1"
+        "$scripts/extract-kconfigs" --include-prefix=/generated/ -o "$output/generated" "$linux" "$1"
     else
-        mkdir -p generated/${1:h}
-        echo '# not exists' > generated/$1
+        mkdir -p "$output/generated/${1:h}"
+        echo '# not exists' > "$output/generated/$1"
     fi
 }
 
