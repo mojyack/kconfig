@@ -1,4 +1,5 @@
 v=6.16.8
+# see ../regular-update for environment setup
 
 # download files
 curl -OL https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$v.tar.xz
@@ -15,18 +16,12 @@ for patch in ../reform-debian-packages/linux/patches${v%.*}/rk3588-mnt-reform2/*
     patch -p1 < "$patch" || break
 done
 # add dtb
-patch -d ../reform-debian-packages -p1 ~/build/kconfig/memo/mnt-pocket-reform/dts-remove-clock-props.patch
+patch -d ../reform-debian-packages -p1 < $repo/memo/mnt-pocket-reform/dts-remove-clock-props.patch
 cp ../reform-debian-packages/linux/rk3588-mnt-pocket-reform.dts arch/arm64/boot/dts/rockchip
 echo 'dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3588-mnt-pocket-reform.dtb' >>  arch/arm64/boot/dts/rockchip/Makefile
 
 # build
-A=arm64
-W=/tmp/linux/mnt
-D=/tmp/mnt/usb1
-
-source ~/build/kconfig/scripts/kmakeenv
-
-init_workdir ~/build/kconfig/mnt-pocket_reform_rcore &&
+# see ../regular-update for source setup
 kmake Image &&
 kmake modules &&
 kmake dtbs &&

@@ -43,6 +43,9 @@ CONFIG_BLK_DEV_NVME=y  # root device
 # misc
 CONFIG_SRAM=y
 
+# scsi
+CONFIG_BLK_DEV_SD=m
+
 # sata
 CONFIG_AHCI_DWC=n  # no sata port
 
