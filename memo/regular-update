@@ -1,0 +1,25 @@
+# environment setup
+repo=~/build/kconfig
+## per model
+model=mnt-pocket_reform_rcore; A=arm64; W=/tmp/linux/$model; D=/tmp/mnt/usb1
+
+# source setup
+## check for updated configs
+source $repo/scripts/kmakeenv
+init_workdir $repo/objects/$model && kmake oldconfig
+## generate config base
+$repo/scripts/generate-config-base . "$W"
+rm -rf "$repo/generated" && ln -s "$W/generated" "$repo/generated"
+## generate config
+$repo/scripts/kcc $repo/$model > $W/.config
+kmake oldconfig
+## regression check
+scripts/diffconfig $W/.config{.old,} | grep -e '^-.* m' -e '^-.* y'
+## write back
+cp $W/.config $repo/objects/$model
+
+# build
+## for uefi platforms
+kmake && kmake modules && uefi_install && rkmake modules_install
+## for arm platforms (see model specific documents)
+kmake Image && kmake modules && kmake dtbs && rkmake modules_install
