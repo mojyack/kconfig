@@ -2,6 +2,7 @@
 repo=~/build/kconfig
 ## per model
 model=mnt-pocket_reform_rcore; A=arm64; W=/tmp/linux/$model; D=/tmp/mnt/usb1
+model=raspberrypi-raspberrypi_5; A=arm64; W=/tmp/linux/$model; D=/mnt
 
 # source setup
 ## check for updated configs
