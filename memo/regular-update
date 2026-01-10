@@ -1,8 +1,11 @@
 # environment setup
 repo=~/build/kconfig
 ## per model
-model=mnt-pocket_reform_rcore; A=arm64; W=/tmp/linux/$model; D=/tmp/mnt/usb1
-model=raspberrypi-raspberrypi_5; A=arm64; W=/tmp/linux/$model; D=/mnt
+model=mnt-pocket_reform_rcore;   A=arm64; D=/tmp/mnt/usb1
+model=raspberrypi-raspberrypi_5; A=arm64; D=/mnt
+model=hb-solomon;                A=x86;   D=/tmp/mnt/solomon
+
+W=/tmp/linux/$model;
 
 # source setup
 ## check for updated configs
