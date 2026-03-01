@@ -161,7 +161,7 @@ def process_file(file):
                         i -= 1
                     case "def_bool" | "def_tristate":
                         block["value_type"] = elms[0][4:]
-                    case "select" | "depends" | "imply" | "visible" | "modules":
+                    case "select" | "depends" | "imply" | "visible" | "modules" | "transitional":
                         pass
                     case _:
                         flush_block(block)
