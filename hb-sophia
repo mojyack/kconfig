@@ -4,7 +4,7 @@ include frag/general
 # arch
 include frag/arch/x86/amd64
 CONFIG_CPU_SUP_INTEL=y
-CONFIG_MNATIVE_INTEL=y
+CONFIG_X86_NATIVE_CPU=y
 CONFIG_NR_CPUS=72
 CONFIG_X86_MCE_INTEL=y
 

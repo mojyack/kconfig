@@ -117,5 +117,6 @@ include frag/fs/squashfs
 CONFIG_HFSPLUS_FS=m
 
 CONFIG_TUN=m
+CONFIG_NTSYNC=m
 
 include frag/extra/gentoo
