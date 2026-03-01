@@ -176,6 +176,7 @@ CONFIG_BLOCK=y
         CONFIG_TRANSPARENT_HUGEPAGE_MADVISE=y
         CONFIG_READ_ONLY_THP_FOR_FS=y
     # } TRANSPARENT_HUGEPAGE
+    CONFIG_PAGE_BLOCK_MAX_ORDER=10
     CONFIG_ZONE_DMA=y
     CONFIG_ZONE_DMA32=y
     CONFIG_MEMFD_CREATE=y
@@ -381,6 +382,7 @@ CONFIG_NET=y
     # FUSE {
         CONFIG_CUSE=m
         CONFIG_FUSE_PASSTHROUGH=y
+        CONFIG_FUSE_IO_URING=y
     # } FUSE
     CONFIG_OVERLAY_FS=m
     # OVERLAY_FS {
@@ -452,7 +454,6 @@ CONFIG_CRYPTO=y
 # Cryptographic API {
     # Crypto core or helper {
         CONFIG_CRYPTO_MANAGER=y
-        CONFIG_CRYPTO_MANAGER_DISABLE_TESTS=y
         CONFIG_CRYPTO_NULL=y
     # } Crypto core or helper
 
@@ -464,16 +465,11 @@ CONFIG_CRYPTO=y
     # Random number generation {
         CONFIG_CRYPTO_JITTERENTROPY=m
     # } Random number generation
-
-    # Certificates for signature checking {
-        CONFIG_SYSTEM_TRUSTED_KEYRING=y
-    # } Certificates for signature checking
 # } Cryptographic API
 
 # Library routines {
     CONFIG_PACKING=y
     CONFIG_CRC_OPTIMIZATIONS=y
-    CONFIG_CRC32_SLICEBY8=y
     CONFIG_FONTS=y
     # FONTS {
         CONFIG_FONT_8x16=y
