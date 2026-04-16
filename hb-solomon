@@ -11,7 +11,7 @@ CONFIG_X86_AMD_PLATFORM_DEVICE=y
 
 # boot
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="root=PARTUUID=c77c8dec-3064-4442-96f3-a559cd8feae1 rw loglevel=3 mitigations=off fsck.mode=skip nowatchdog vfio-pci.ids=1002:6fdf,1002:aaf0 iommu=pt"
+CONFIG_CMDLINE="root=PARTUUID=c77c8dec-3064-4442-96f3-a559cd8feae1 rw loglevel=3 fsck.mode=skip nowatchdog vfio-pci.ids=1002:6fdf,1002:aaf0 iommu=pt"
 
 include frag/arch/x86/efi
 CONFIG_EFI_STUB=y
@@ -83,6 +83,7 @@ include frag/drivers/sound/usb
 
 # usb
 CONFIG_USB_XHCI_HCD=m
+CONFIG_USB_ACM=m
 CONFIG_USB_SERIAL=m
 CONFIG_USB_SERIAL_CH341=m
 CONFIG_USB_SERIAL_QUALCOMM=m
@@ -103,6 +104,7 @@ CONFIG_IA32_EMULATION=y
 # kvm
 include frag/arch/x86/kvm
 CONFIG_KVM_AMD=m
+CONFIG_KVM_IOAPIC=y
 
 # virtio
 include frag/drivers/vfio
