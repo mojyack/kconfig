@@ -1,0 +1,13 @@
+diff --git a/lpc/reform2_lpc.c b/lpc/reform2_lpc.c
+index 78aed5f..d63b9cd 100644
+--- a/lpc/reform2_lpc.c
++++ b/lpc/reform2_lpc.c
+@@ -160,7 +160,7 @@ static uint32_t lpc_get_api_version(struct device *dev)
+ 	if (ret)
+ 		return MNTRE_LPC_API_UNKNOWN;
+ 
+-	ret = MNTRE_LPC_API_UNKNOWN;
++	ret = MNTRE_LPC_API_V3;
+ 	if (version > 20200000 && version < 20250526) {
+ 		ret = MNTRE_LPC_API_V1;
+ 	} else if (version >= 20250526 && version < 20260315) {

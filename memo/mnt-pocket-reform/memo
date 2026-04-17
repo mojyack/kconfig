@@ -1,4 +1,4 @@
-v=6.16.8
+v=6.19.12
 # see ../regular-update for environment setup
 
 # download files
@@ -12,11 +12,12 @@ cd linux-$v
 # print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
 # mnt patches
-for patch in ../reform-debian-packages/linux/patches${v%.*}/rk3588-mnt-reform2/*.patch ../reform-debian-packages/linux/patches${v%.*}/imx8mp-mnt-pocket-reform/pocket-panel/0001-v5-add-multi-display-panel-driver.patch; do
+for patch in ../reform-debian-packages/linux/patches${v%.*}/rk3588-mnt-reform2/*.patch \
+             ../reform-debian-packages/linux/patches${v%.*}/imx8mp-mnt-pocket-reform/pocket-panel/*.patch \
+             ../reform-debian-packages/linux/patches${v%.*}/meson-g12b-bananapi-cm4-mnt-pocket-reform/*.patch; do
     patch -p1 < "$patch" || break
 done
 # add dtb
-patch -d ../reform-debian-packages -p1 < $repo/memo/mnt-pocket-reform/dts-remove-clock-props.patch
 cp ../reform-debian-packages/linux/rk3588-mnt-pocket-reform.dts arch/arm64/boot/dts/rockchip
 echo 'dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3588-mnt-pocket-reform.dtb' >>  arch/arm64/boot/dts/rockchip/Makefile
 
@@ -30,6 +31,7 @@ doas cp $W/arch/arm64/boot/Image $D/boot/vmlinuz &&
 doas cp $W/arch/arm64/boot/dts/rockchip/rk3588-mnt-pocket-reform.dtb $D/boot/dtb
 
 # lpc
-pathc -d ../reform-tools -p1 < ~/build/kconfig/memo/mnt-pocket-reform/lpc-force-v2.patch
+patch -d ../reform-tools -p1 < ~/build/kconfig/memo/mnt-pocket-reform/lpc-force-v2.patch
+patch -d ../reform-tools -p1 < ~/build/kconfig/memo/mnt-pocket-reform/lpc-api-v3.patch
 kmake M=$PWD/../reform-tools/lpc modules
 rkmake M=$PWD/../reform-tools/lpc modules_install
