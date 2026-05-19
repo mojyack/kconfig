@@ -1,0 +1,133 @@
+set arch amd64
+include frag/general
+
+# arch
+include frag/arch/x86/amd64
+CONFIG_CPU_SUP_INTEL=y
+CONFIG_MHASWELL=y
+CONFIG_NR_CPUS=4
+CONFIG_X86_MCE_INTEL=y
+
+# boot
+CONFIG_CMDLINE_BOOL=y
+CONFIG_CMDLINE="root=PARTUUID=d20a4f8d-fda8-443f-aeb1-2f364dad07ea rw loglevel=3 fsck.mode=skip rootwait"
+
+include frag/arch/x86/efi
+CONFIG_EFI_STUB=y
+
+# thermal
+CONFIG_INTEL_POWERCLAMP=m
+CONFIG_X86_PKG_TEMP_THERMAL=m
+
+# bcma
+CONFIG_BCMA=n  # actually broadcom-wl
+
+# hwmon
+CONFIG_SENSORS_APPLESMC=m
+CONFIG_SENSORS_CORETEMP=m
+
+# perf
+CONFIG_PERF_EVENTS_INTEL_UNCORE=m
+CONFIG_PERF_EVENTS_INTEL_RAPL=m
+CONFIG_PERF_EVENTS_INTEL_CSTATE=m
+
+# acpi
+include frag/drivers/acpi
+CONFIG_ACPI_AC=m
+CONFIG_ACPI_BATTERY=m
+CONFIG_INTEL_IDLE=y
+
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_SBS=m
+
+include frag/fs/nfs
+include frag/extra/zram
+include frag/extra/gentoo
+
+### drivers ###
+# pci
+include frag/drivers/pci
+
+# mfd
+CONFIG_MFD_CORE=m
+CONFIG_LPC_ICH=m
+
+# i2c
+CONFIG_I2C_I801=m
+
+# input
+CONFIG_KEYBOARD_APPLESPI=m
+CONFIG_MOUSE_BCM5974=m
+CONFIG_INPUT_UINPUT=m
+CONFIG_I2C_HID=m
+
+# mei
+CONFIG_INTEL_MEI=m
+CONFIG_INTEL_MEI_ME=m
+
+# block
+include frag/extra/sata-rootfs
+
+# wifi
+include frag/net/wireless
+# oot module
+
+# bluetooth
+include frag/net/bluetooth/usb
+CONFIG_BT_HCIBTUSB_BCM=y
+CONFIG_BT_HCIBTUSB_RTL=y
+
+# ethernet
+CONFIG_USB_NET_DRIVERS=y
+CONFIG_USB_USBNET=m
+CONFIG_USB_NET_AX88179_178A=m
+
+# spi
+CONFIG_SPI=y  # by CONFIG_KEYBOARD_APPLESPI
+CONFIG_SPI_PXA2XX=m
+
+# gpu
+include frag/drivers/drm/i915
+CONFIG_DRM_I915=y
+CONFIG_BACKLIGHT_APPLE=m
+
+# media
+CONFIG_MEDIA_PCI_SUPPORT=y
+CONFIG_VIDEO_TW686X=m  # dummy option to pull CONFIG_VIDEOBUF2_DMA_SG for facetimehd
+CONFIG_VIDEOBUF2_DMA_SG=m  # hidden config, declared for regression check
+
+# sound
+include frag/drivers/sound/hda
+CONFIG_SND_HDA_CODEC_HDMI=m
+CONFIG_SND_HDA_CODEC_HDMI_INTEL=m
+CONFIG_SND_HDA_CODEC_CIRRUS=m
+CONFIG_SND_HDA_CODEC_CS420X=m
+CONFIG_SND_HDA_GENERIC=m
+
+include frag/drivers/sound/usb
+
+# hid
+CONFIG_HID_APPLE=m
+
+# usb
+CONFIG_USB_XHCI_HCD=m
+CONFIG_USB_XHCI_PCI=m
+
+# rtc
+include frag/drivers/rtc
+CONFIG_RTC_DRV_CMOS=m
+
+# dma
+CONFIG_DMADEVICES=y
+CONFIG_DW_DMAC_CORE=m
+CONFIG_DW_DMAC_PCI=m
+
+# powercap
+CONFIG_POWERCAP=y
+CONFIG_INTEL_RAPL=m
+
+# iio
+CONFIG_IIO=m
+CONFIG_ACPI_ALS=m
+
+CONFIG_TUN=m

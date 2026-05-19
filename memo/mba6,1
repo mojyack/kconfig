@@ -1,4 +1,0 @@
-mkdir wl fthd remote
-sshfs root@direct-client:/ remote
-~/build/kconfig/scripts/build-facetimehd.sh $PWD $PWD/remote
-~/build/kconfig/scripts/build-wl.sh $PWD $PWD/remote/lib/modules/6.*

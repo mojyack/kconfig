@@ -1,0 +1,21 @@
+# after regular-update...
+
+# facetimehd
+if [[ ! -e $W/facetimehd ]]; then
+    git clone --depth=1 "https://github.com/patjak/facetimehd" "$W/facetimehd"
+fi
+kmake M="$W/facetimehd"
+rkmake M="$W/facetimehd" modules_install
+
+# broadcom-wl
+mkdir -p "$W/broadcom-wl"
+if [[ ! -e $W/broadcom-wl/broadcom-wl-dkms ]]; then
+    git clone --depth=1 "https://gitlab.archlinux.org/archlinux/packaging/packages/broadcom-wl-dkms.git/" "$W/broadcom-wl/broadcom-wl-dkms"
+fi
+if [[ ! -e $W/broadcom-wl/hybrid.tar.gz ]]; then
+    curl -o "$W/broadcom-wl/hybrid.tar.gz" "https://docs.broadcom.com/docs-and-downloads/docs/linux_sta/hybrid-v35_64-nodebug-pcoem-6_30_223_271.tar.gz"
+    tar -C "$W/broadcom-wl" -xvf "$W/broadcom-wl/hybrid.tar.gz"
+    for p ($W/broadcom-wl/broadcom-wl-dkms/*.patch); do patch -d "$W/broadcom-wl" -p1 < $p; done
+fi
+kmake M="$W/broadcom-wl" GE_49=1
+rkmake M="$W/broadcom-wl" GE_49=1 modules_install
