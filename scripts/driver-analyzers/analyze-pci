@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+
+from common import (
+    walk_sources,
+    dump_cache,
+    load_cache,
+    find_corresponding_config,
+    load_config,
+    make_config_status,
+    print_config_result,
+)
+
+pci_cache_file = "pci-drivers-cache.txt"
+
+# PCI_DEVICE(v, d), PCI_DEVICE_SUB(v, d, sv, sd), PCI_DEVICE_DATA(v, d, data).
+PCI_DEVICE_CALL = re.compile(
+    r"\bPCI_DEVICE(?:_SUB|_DATA)?\s*\(\s*([^,\s]+)\s*,\s*([^,\s\)]+)"
+)
+# PCI_VDEVICE(VENDOR_ABBREV, device) — vendor is the suffix of PCI_VENDOR_ID_*.
+PCI_VDEVICE_CALL = re.compile(r"\bPCI_VDEVICE\s*\(\s*([A-Za-z0-9_]+)\s*,\s*([^,\s\)]+)")
+# PCI_DEVICE_CLASS(class, mask)
+PCI_CLASS_CALL = re.compile(r"\bPCI_DEVICE_CLASS\s*\(\s*([^,]+?)\s*,\s*([^,\)]+?)\s*\)")
+DEFINE_HEX = re.compile(r"#\s*define\s+(\w+)\s+\(?\s*0x([0-9a-fA-F]+)U?L?L?")
+DEFINE_DEC = re.compile(r"#\s*define\s+(\w+)\s+\(?\s*(\d+)U?L?L?")
+HEX_LITERAL = re.compile(r"^0x([0-9a-fA-F]+)U?L?L?$")
+DEC_LITERAL = re.compile(r"^(\d+)U?L?L?$")
+
+_base_defines = {}
+
+
+def collect_defines(path):
+    defines = {}
+    try:
+        src = open(path, encoding="utf-8", errors="ignore").read()
+    except OSError:
+        return defines
+    for name, value in DEFINE_HEX.findall(src):
+        defines[name] = int(value, 16)
+    for name, value in DEFINE_DEC.findall(src):
+        defines.setdefault(name, int(value))
+    return defines
+
+
+def resolve_expr(token, defines):
+    # Handle simple shift expressions like (CLASS_X << 8) or CLASS_X<<8.
+    tok = token.strip().strip("()").strip()
+    if "<<" in tok:
+        lhs, _, rhs = tok.partition("<<")
+        l = resolve_token(lhs.strip(), defines)
+        r = resolve_token(rhs.strip(), defines)
+        if l is None or r is None:
+            return None
+        return l << r
+    return resolve_token(tok, defines)
+
+
+def resolve_token(token, defines):
+    token = token.strip()
+    m = HEX_LITERAL.match(token)
+    if m:
+        return int(m.group(1), 16)
+    m = DEC_LITERAL.match(token)
+    if m:
+        return int(m.group(1))
+    if token in defines:
+        return defines[token]
+    return _base_defines.get(token)
+
+
+_dir_header_cache = {}
+
+
+def headers_for_dir(dirpath):
+    if dirpath in _dir_header_cache:
+        return _dir_header_cache[dirpath]
+    merged = {}
+    try:
+        for f in os.listdir(dirpath):
+            if f.endswith(".h"):
+                merged.update(collect_defines(os.path.join(dirpath, f)))
+    except OSError:
+        pass
+    _dir_header_cache[dirpath] = merged
+    return merged
+
+
+def extract_pci_ids_from_source(path):
+    try:
+        src = open(path, encoding="utf-8", errors="ignore").read()
+    except OSError:
+        return []
+    if "PCI_DEVICE" not in src and "PCI_VDEVICE" not in src:
+        return []
+
+    defines = dict(headers_for_dir(os.path.dirname(path)))
+    defines.update(collect_defines(path))
+
+    found = set()
+    for v_tok, d_tok in PCI_DEVICE_CALL.findall(src):
+        v = resolve_token(v_tok, defines)
+        d = resolve_token(d_tok, defines)
+        if v is None or d is None or v > 0xFFFF or d > 0xFFFF:
+            continue
+        found.add(f"vd:{v:04x}:{d:04x}")
+    for vend_tok, d_tok in PCI_VDEVICE_CALL.findall(src):
+        v = resolve_token("PCI_VENDOR_ID_" + vend_tok, defines)
+        d = resolve_token(d_tok, defines)
+        if v is None or d is None or v > 0xFFFF or d > 0xFFFF:
+            continue
+        found.add(f"vd:{v:04x}:{d:04x}")
+    for cls_tok, mask_tok in PCI_CLASS_CALL.findall(src):
+        cls = resolve_expr(cls_tok, defines)
+        mask = resolve_expr(mask_tok, defines)
+        if cls is None or mask is None:
+            continue
+        if cls > 0xFFFFFF or mask > 0xFFFFFF:
+            continue
+        found.add(f"cm:{cls:06x}:{mask:06x}")
+    return sorted(found)
+
+
+def parse_pci_devices(path):
+    devices = []
+    for line in open(path).read().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = re.split(r" {2,}", line, maxsplit=2)
+        head = parts[0].strip()
+        cls = (parts[1].strip() if len(parts) >= 2 else "").lower()
+        addr = parts[2].strip() if len(parts) >= 3 else ""
+        if ":" not in head:
+            continue
+        vid, _, did = head.partition(":")
+        vd = f"{vid.lower()}:{did.lower()}"
+        try:
+            cls_val = int(cls, 16) if cls and cls != "------" else None
+        except ValueError:
+            cls_val = None
+        devices.append((vd, cls_val, addr))
+    return devices
+
+
+# ---------- Main ----------
+
+if len(sys.argv) < 3:
+    print(
+        "usage: analyze-pci /path/to/linux /path/to/pci-devices (/path/to/reference/config)",
+    )
+    sys.exit(1)
+
+src = sys.argv[1]
+pci_devices = sys.argv[2]
+ref = sys.argv[3] if len(sys.argv) >= 4 else None
+
+pci_ids = f"{src}/include/linux/pci_ids.h"
+if os.path.exists(pci_ids):
+    _base_defines.update(collect_defines(pci_ids))
+
+if not os.path.exists(pci_cache_file):
+    print("enumerating pci drivers")
+    drivers = walk_sources(
+        [f"{src}/drivers", f"{src}/sound"], extract_pci_ids_from_source
+    )
+    dump_cache(drivers, pci_cache_file)
+else:
+    print("using cache")
+    drivers = load_cache(pci_cache_file)
+
+# Reverse index for vid:did. Class entries iterated separately.
+vd_to_files = {}
+class_rules = []  # (cls, mask, file)
+for entry in drivers:
+    path = entry[0]
+    for tok in entry[1:]:
+        if tok.startswith("vd:"):
+            vd_to_files.setdefault(tok[3:], []).append(path)
+        elif tok.startswith("cm:"):
+            _, cls_hex, mask_hex = tok.split(":")
+            class_rules.append((int(cls_hex, 16), int(mask_hex, 16), path))
+
+devices = parse_pci_devices(pci_devices)
+reference_config = load_config(ref) if ref is not None else {}
+config_status = make_config_status(reference_config)
+
+
+def print_files(files):
+    for file in files:
+        rel = file[len(src) + 1 :] if file.startswith(src) else file
+        print(f"            {rel}")
+        code, configs = find_corresponding_config(file)
+        print_config_result(code, configs, config_status, indent=" " * 16)
+
+
+matched_specific = []
+only_class = []
+missing = []
+
+for vd, cls_val, addr in devices:
+    specific = vd_to_files.get(vd, [])
+    class_matches = []
+    if cls_val is not None:
+        seen = set(specific)
+        for cls, mask, file in class_rules:
+            if (cls_val & mask) == cls and file not in seen:
+                class_matches.append(file)
+                seen.add(file)
+    if specific:
+        matched_specific.append((vd, cls_val, addr, specific, class_matches))
+    elif class_matches:
+        only_class.append((vd, cls_val, addr, class_matches))
+    else:
+        missing.append((vd, cls_val, addr))
+
+print(f"pci devices without driver ({len(missing)}):")
+for vd, cls_val, addr in missing:
+    cls_str = f"{cls_val:06x}" if cls_val is not None else "------"
+    print(f"    {vd}  {cls_str}  {addr}")
+
+print(f"\nclass-matched only ({len(only_class)}):")
+for vd, cls_val, addr, files in only_class:
+    cls_str = f"{cls_val:06x}" if cls_val is not None else "------"
+    print(f"    {vd}  {cls_str}  {addr}")
+    print(f"        class ({len(files)} candidate drivers)")
+    print_files(files)
+
+print(f"\nmatched pci devices ({len(matched_specific)}):")
+for vd, cls_val, addr, specific, class_matches in matched_specific:
+    cls_str = f"{cls_val:06x}" if cls_val is not None else "------"
+    print(f"    {vd}  {cls_str}  {addr}")
+    print(f"        vid:did match")
+    print_files(specific)
+    if class_matches:
+        print(f"        class ({len(class_matches)} additional candidate drivers)")
+        print_files(class_matches)

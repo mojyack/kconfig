@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+# usage: pci-collect (/sys/bus/pci/devices)
+
+import os
+import sys
+
+
+def read_hex(path):
+    try:
+        s = open(path).read().strip()
+    except OSError:
+        return ""
+    if s.startswith("0x"):
+        s = s[2:]
+    return s.lower()
+
+
+def main():
+    root = sys.argv[1] if len(sys.argv) >= 2 else "/sys/bus/pci/devices"
+    entries = []
+    for name in sorted(os.listdir(root)):
+        dev = os.path.join(root, name)
+        vid = read_hex(os.path.join(dev, "vendor"))
+        did = read_hex(os.path.join(dev, "device"))
+        cls = read_hex(os.path.join(dev, "class"))
+        if not (vid and did):
+            continue
+        entries.append((vid, did, cls or "------", name))
+
+    for vid, did, cls, addr in entries:
+        print(f"{vid}:{did}  {cls}  {addr}")
+
+
+if __name__ == "__main__":
+    main()

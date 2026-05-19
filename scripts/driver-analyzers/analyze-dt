@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+import sys
+import os
+import re
+import subprocess
+
+from common import (
+    walk_sources,
+    dump_cache,
+    load_cache,
+    find_corresponding_config,
+    load_config,
+    make_config_status,
+    print_config_result,
+)
+
+compatibles_cache_file = "compatibles-cache.txt"
+
+
+def extract_compatibles_from_source(file, rules=None):
+    if rules is None:
+        rules = _compat_rules
+    ret = []
+    try:
+        src = open(file).read()
+    except UnicodeDecodeError:
+        return []
+    for pattern, extract in rules:
+        for match in re.findall(pattern, src):
+            match = match.replace("\t", " ")
+            match = match.replace('",', '"')
+            ret.append(extract(match))
+    return ret
+
+
+_compat_rules = [
+    [
+        re.compile(r'\.compatible\s*=\s*".*"'),
+        lambda match: [x for x in match.split(" ") if x][2][1:-1],
+    ],
+    [
+        re.compile(r'of_get_compatible_child(.*,.*")'),
+        lambda match: match.split(" ")[-1][1:-1],
+    ],
+    [
+        re.compile(r'of_device_is_compatible(.*,.*")'),
+        lambda match: match.split(" ")[-1][1:-1],
+    ],
+    [
+        re.compile(r'IRQCHIP_MATCH(.*,.*")'),
+        lambda match: match.split(" ")[-1][2:-1],
+    ],
+    [
+        re.compile(r"of_find_compatible_node(.*,.*,.*)"),
+        lambda match: match.split(" ")[-1][1:-3],
+    ],
+]
+
+
+def compile_dts(src, dts):
+    args = "clang -x assembler-with-cpp -nostdinc -E -P".split(" ") + [
+        f"-I{src}/include",
+        f"{src}/{dts}",
+    ]
+    result = subprocess.run(
+        args,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+    )
+    stdout = result.stdout.decode("utf-8")
+    if result.returncode != 0:
+        print("cc error", result.returncode, stdout)
+        exit(1)
+    return stdout
+
+
+def extract_devices_from_dts(dts):
+    found = set()
+    ret = []
+    for line in dts.split("\n"):
+        if not "compatible " in line:
+            continue
+
+        compatibles = [e[1:-2] for e in line.strip().split(" ")[2:]]
+        key = "".join(compatibles)
+        if not key in found:
+            found.add(key)
+            ret.append(compatibles)
+
+    return ret
+
+
+# ---------- Main ----------
+
+if len(sys.argv) < 3:
+    print(
+        "usage: analyze-dt /path/to/linux relative/path/to/dts (/path/to/reference/config)"
+    )
+    sys.exit(1)
+
+src = sys.argv[1]
+dts = sys.argv[2]
+ref = sys.argv[3] if len(sys.argv) >= 4 else None
+
+if not os.path.exists(compatibles_cache_file):
+    print("enumerating drivers")
+    compatibles = walk_sources(
+        [f"{src}/drivers", f"{src}/sound"], extract_compatibles_from_source
+    )
+    dump_cache(compatibles, compatibles_cache_file)
+else:
+    print("using cache")
+    compatibles = load_cache(compatibles_cache_file)
+
+dts = compile_dts(src, dts)
+open(os.path.basename(sys.argv[2]), "w").write(dts)
+devices = extract_devices_from_dts(dts)
+
+found_sources = []  # list of [device, files...]
+missing_drivers = []
+reference_config = load_config(ref) if ref is not None else {}
+config_status = make_config_status(reference_config)
+
+
+for device in devices:
+    sources = [device]
+    for device_compatible in device:
+        for driver_compatibles in compatibles:
+            # exclude driver_compatibles[0] from search, since [0] is a file path
+            if device_compatible in driver_compatibles[1:]:
+                sources.append(driver_compatibles[0])
+
+    if len(sources) >= 2:
+        found_sources.append(sources)
+    else:
+        missing_drivers.append(device)
+
+print(f"devices without driver({len(missing_drivers)}):")
+for driver in missing_drivers:
+    print(f"    {driver}")
+
+print(f"found source files({len(found_sources)}):")
+for source in found_sources:
+    device = source[0]
+    files = source[1:]
+    print(f"    {device}")
+    for file in files:
+        rel = file[len(src) + 1 :]
+        print(f"        {rel}")
+        code, configs = find_corresponding_config(file)
+        print_config_result(code, configs, config_status)

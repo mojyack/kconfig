@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# usage: usb-collect (/sys/bus/usb/devices)
+
+import os
+import sys
+
+
+def read(path):
+    try:
+        return open(path).read().strip()
+    except OSError:
+        return ""
+
+
+# Interface entries for a USB device dir <name> live next to it as
+# <name>:<config>.<interface>/ and contain a bInterfaceClass file.
+def interface_classes(root, name):
+    prefix = name + ":"
+    classes = []
+    try:
+        siblings = os.listdir(root)
+    except OSError:
+        return classes
+    for sib in sorted(siblings):
+        if not sib.startswith(prefix):
+            continue
+        cls = read(os.path.join(root, sib, "bInterfaceClass"))
+        if cls:
+            classes.append(cls.lower())
+    return classes
+
+
+def main():
+    root = sys.argv[1] if len(sys.argv) >= 2 else "/sys/bus/usb/devices"
+    entries = []
+    for name in sorted(os.listdir(root)):
+        dev = os.path.join(root, name)
+        vid_path = os.path.join(dev, "idVendor")
+        pid_path = os.path.join(dev, "idProduct")
+        if not (os.path.isfile(vid_path) and os.path.isfile(pid_path)):
+            continue
+        vid = read(vid_path)
+        pid = read(pid_path)
+        manu = read(os.path.join(dev, "manufacturer"))
+        prod = read(os.path.join(dev, "product"))
+        classes = interface_classes(root, name)
+        label = " - ".join(x for x in (manu, prod) if x)
+        entries.append((vid, pid, classes, label))
+
+    for vid, pid, classes, label in entries:
+        cls_str = ",".join(classes) if classes else "-"
+        print(f"{vid}:{pid}  {cls_str}  {label}")
+
+
+if __name__ == "__main__":
+    main()

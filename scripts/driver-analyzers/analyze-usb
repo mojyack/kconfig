@@ -1,0 +1,214 @@
+#!/usr/bin/env python3
+
+import os
+import re
+import sys
+
+from common import (
+    walk_sources,
+    dump_cache,
+    load_cache,
+    find_corresponding_config,
+    load_config,
+    make_config_status,
+    print_config_result,
+)
+
+usb_cache_file = "usb-drivers-cache.txt"
+
+# VID/PID-bearing forms: USB_DEVICE, USB_DEVICE_VER, USB_DEVICE_INTERFACE_*,
+# USB_DEVICE_AND_INTERFACE_INFO. Excludes USB_DEVICE_INFO (class triple only).
+USB_VIDPID_CALL = re.compile(
+    r"USB_DEVICE"
+    r"(?:_VER|_INTERFACE_[A-Z_]+|_AND_INTERFACE_INFO)?"
+    r"\s*\(\s*([^,\s]+)\s*,\s*([^,\s\)]+)"
+)
+# Class-only forms: USB_INTERFACE_INFO(cl, sc, pr) and USB_DEVICE_INFO(cl, sc, pr).
+USB_CLASS_CALL = re.compile(r"USB_(?:INTERFACE_INFO|DEVICE_INFO)\s*\(\s*([^,\s]+)")
+DEFINE_HEX = re.compile(r"#\s*define\s+(\w+)\s+0x([0-9a-fA-F]+)")
+DEFINE_DEC = re.compile(r"#\s*define\s+(\w+)\s+(\d+)\b")
+HEX_LITERAL = re.compile(r"^0x([0-9a-fA-F]+)U?L?L?$")
+DEC_LITERAL = re.compile(r"^(\d+)U?L?L?$")
+
+_base_defines = {}
+
+
+def collect_defines(path):
+    defines = {}
+    try:
+        src = open(path, encoding="utf-8", errors="ignore").read()
+    except OSError:
+        return defines
+    for name, value in DEFINE_HEX.findall(src):
+        defines[name] = int(value, 16)
+    for name, value in DEFINE_DEC.findall(src):
+        defines.setdefault(name, int(value))
+    return defines
+
+
+def resolve(token, defines):
+    m = HEX_LITERAL.match(token)
+    if m:
+        return int(m.group(1), 16)
+    m = DEC_LITERAL.match(token)
+    if m:
+        return int(m.group(1))
+    if token in defines:
+        return defines[token]
+    return _base_defines.get(token)
+
+
+_dir_header_cache = {}
+
+
+def headers_for_dir(dirpath):
+    if dirpath in _dir_header_cache:
+        return _dir_header_cache[dirpath]
+    merged = {}
+    try:
+        for f in os.listdir(dirpath):
+            if f.endswith(".h"):
+                merged.update(collect_defines(os.path.join(dirpath, f)))
+    except OSError:
+        pass
+    _dir_header_cache[dirpath] = merged
+    return merged
+
+
+def extract_usb_ids_from_source(path):
+    try:
+        src = open(path, encoding="utf-8", errors="ignore").read()
+    except OSError:
+        return []
+    if "USB_DEVICE" not in src and "USB_INTERFACE_INFO" not in src:
+        return []
+
+    defines = dict(headers_for_dir(os.path.dirname(path)))
+    defines.update(collect_defines(path))
+
+    found = set()
+    for vid_tok, pid_tok in USB_VIDPID_CALL.findall(src):
+        vid = resolve(vid_tok, defines)
+        pid = resolve(pid_tok, defines)
+        if vid is None or pid is None:
+            continue
+        if vid > 0xFFFF or pid > 0xFFFF:
+            continue
+        found.add(f"vp:{vid:04x}:{pid:04x}")
+    for cls_tok in USB_CLASS_CALL.findall(src):
+        cls = resolve(cls_tok, defines)
+        if cls is None or cls > 0xFF:
+            continue
+        found.add(f"cl:{cls:02x}")
+    return sorted(found)
+
+
+def parse_usb_devices(path):
+    # Format: "vid:pid  classes  label" where classes is "cc,cc,..." or "-".
+    devices = []
+    for line in open(path).read().splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = re.split(r" {2,}", line, maxsplit=2)
+        head = parts[0].strip()
+        cls_field = parts[1].strip() if len(parts) >= 2 else "-"
+        label = parts[2].strip() if len(parts) >= 3 else ""
+        if ":" not in head:
+            continue
+        vid, _, pid = head.partition(":")
+        vp = f"{vid.lower()}:{pid.lower()}"
+        if cls_field and cls_field != "-":
+            classes = [c.strip().lower() for c in cls_field.split(",") if c.strip()]
+        else:
+            classes = []
+        devices.append((vp, classes, label))
+    return devices
+
+
+# ---------- Main ----------
+if len(sys.argv) < 3:
+    print(
+        "usage: driver-analyzer-usb /path/to/linux /path/to/usb-devices (/path/to/reference/config)",
+        file=sys.stderr,
+    )
+    sys.exit(1)
+
+src = sys.argv[1]
+usb_devices = sys.argv[2]
+ref = sys.argv[3] if len(sys.argv) >= 4 else None
+
+ch9 = f"{src}/include/uapi/linux/usb/ch9.h"
+if os.path.exists(ch9):
+    _base_defines.update(collect_defines(ch9))
+
+if not os.path.exists(usb_cache_file):
+    print("enumerating usb drivers")
+    drivers = walk_sources(
+        [f"{src}/drivers", f"{src}/sound"], extract_usb_ids_from_source
+    )
+    dump_cache(drivers, usb_cache_file)
+else:
+    print("using cache")
+    drivers = load_cache(usb_cache_file)
+
+# Reverse index: token -> [driver files]
+token_to_files = {}
+for entry in drivers:
+    path = entry[0]
+    for tok in entry[1:]:
+        token_to_files.setdefault(tok, []).append(path)
+
+devices = parse_usb_devices(usb_devices)
+reference_config = load_config(ref) if ref is not None else {}
+config_status = make_config_status(reference_config)
+
+
+def print_files(files):
+    for file in files:
+        rel = file[len(src) + 1 :] if file.startswith(src) else file
+        print(f"            {rel}")
+        code, configs = find_corresponding_config(file)
+        print_config_result(code, configs, config_status, indent=" " * 16)
+
+
+matched_specific = []  # has vid:pid match
+only_class = []  # only class match
+missing = []  # nothing
+
+for vp, classes, label in devices:
+    specific = token_to_files.get(f"vp:{vp}", [])
+    class_hits = {}
+    for cls in classes:
+        hits = token_to_files.get(f"cl:{cls}", [])
+        # Drop files already shown as specific matches.
+        hits = [h for h in hits if h not in specific]
+        if hits:
+            class_hits[cls] = hits
+    if specific:
+        matched_specific.append((vp, label, specific, class_hits))
+    elif class_hits:
+        only_class.append((vp, label, classes, class_hits))
+    else:
+        missing.append((vp, classes, label))
+
+print(f"usb devices without driver ({len(missing)}):")
+for vp, classes, label in missing:
+    cls_str = ",".join(classes) if classes else "-"
+    print(f"    {vp}  [{cls_str}]  {label}")
+
+print(f"\nclass-matched only ({len(only_class)}):")
+for vp, label, classes, class_hits in only_class:
+    print(f"    {vp}  {label}")
+    for cls, files in class_hits.items():
+        print(f"        class {cls} ({len(files)} candidate drivers)")
+        print_files(files)
+
+print(f"\nmatched usb devices ({len(matched_specific)}):")
+for vp, label, specific, class_hits in matched_specific:
+    print(f"    {vp}  {label}")
+    print(f"        vid:pid match")
+    print_files(specific)
+    for cls, files in class_hits.items():
+        print(f"        class {cls} ({len(files)} candidate drivers)")
+        print_files(files)
