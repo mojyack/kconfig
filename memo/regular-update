@@ -6,6 +6,7 @@ model=raspberrypi-raspberrypi_5; A=arm64; D=/mnt
 model=hb-solomon;                A=x86;   D=/tmp/mnt/solomon
 model=hb-sophia;                 A=x86;   D=/
 model=apple-macbook_air_6p1;     A=x86;   D=/tmp/mnt/usb1
+model=bmax-b1_g1f2;              A=x86;   D=/tmp/mnt/corn
 
 W=/tmp/linux/$model
 
