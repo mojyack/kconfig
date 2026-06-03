@@ -1,0 +1,11 @@
+# clone
+S=/tmp/linux-mbp13p2
+git clone https://github.com/mojyack/gentoo-sources -b mbp13p2 $S
+cd $S
+# or use existing repo
+S=/usr/src/linux-git
+cd $S
+git checkout mbp13p2
+
+# follow regular-update, then
+kmake && kmake modules && rkmake modules_install && doas cp $W/arch/x86_64/boot/bzImage $D/boot/vmlinuz-gentoo
