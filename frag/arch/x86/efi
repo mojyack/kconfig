@@ -12,6 +12,7 @@ CONFIG_EFI=y
 
 # Frame buffer Devices {
     CONFIG_FB_EFI=y
+    CONFIG_FIRMWARE_EDID=y
 # } Frame buffer Devices
 
 # Pseudo filesystems {

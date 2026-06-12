@@ -163,7 +163,9 @@ CONFIG_BLOCK=y
 # Memory Management options {
     # Slab allocator options {
         CONFIG_SLAB_MERGE_DEFAULT=y
-        CONFIG_SLUB_CPU_PARTIAL=y
+        if $kernel < 7.1
+            CONFIG_SLUB_CPU_PARTIAL=y
+        fi
     # } Slab allocator options
 
     CONFIG_COMPAT_BRK=y
@@ -311,8 +313,6 @@ CONFIG_NET=y
 
         # Frame buffer Devices {
             CONFIG_FB=y
-            CONFIG_FIRMWARE_EDID=y
-            CONFIG_FB_MODE_HELPERS=y
             CONFIG_FB_TILEBLITTING=y
         # } Frame buffer Devices
 
@@ -321,7 +321,9 @@ CONFIG_NET=y
         # } Backlight & LCD device support
 
         # Console display driver support {
-            CONFIG_VGA_CONSOLE=y
+            if $arch == amd64
+                CONFIG_VGA_CONSOLE=y
+            fi
             CONFIG_FRAMEBUFFER_CONSOLE=y
             CONFIG_FRAMEBUFFER_CONSOLE_DETECT_PRIMARY=y
             CONFIG_FRAMEBUFFER_CONSOLE_ROTATION=y
