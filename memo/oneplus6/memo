@@ -9,7 +9,7 @@ mkdir build
 cp ~/build/kconfig/oneplus-oneplus_6 build/.config
 
 # prepare kernel
-git clone --depth=1 https://gitlab.com/sdm845-mainline/linux.git -b sdm845/6.13-release
+git clone --depth=1 https://gitlab.com/sdm845-mainline/linux.git -b sdm845/7.1-dev
 pushd linux
 ## print firmware
 curl 'https://732852.bugs.gentoo.org/attachment.cgi?id=649432' | patch -p1
@@ -20,25 +20,16 @@ patch -p1 < msm-dpu-supress-warnings.patch
 
 mc usb1
 
-# build kernel
-A=arm64
-W=$PWD/../build
-D=/tmp/mnt/usb1
+W=/tmp/linux/$model
 
-source ~/build/kconfig/scripts/kmakeenv
+# follow regular-update
 
-init_workdir ~/build/kconfig/oneplus-oneplus_6 &&
-kmake oldconfig  &&
-kmake Image.gz &&
-kmake modules &&
-kmake dtbs &&
-rkmake modules_install
+kmake Image.gz && kmake modules && kmake dtbs && rkmake modules_install
 popd
 
 # install
-~/build/kconfig/memo/oneplus6/create-boot-image.sh build/arch/arm64/boot/{Image.gz,dts/qcom/sdm845-oneplus-enchilada.dtb} boot_m.img
+~/build/kconfig/memo/oneplus6/create-boot-image.sh $W/arch/arm64/boot/{Image.gz,dts/qcom/sdm845-oneplus-enchilada.dtb} boot_m.img
 doas cp boot_m.img /tmp/mnt/usb1/boot
-popd
 
 # in target device
 # write new image and reboot
