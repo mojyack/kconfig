@@ -4,7 +4,7 @@ import sys
 
 included = set()
 configs = dict()
-sets = dict()
+defs = dict()
 
 
 def strip_line(line):
@@ -12,6 +12,15 @@ def strip_line(line):
     if comment != -1:
         line = line[:comment]
     return line.strip()
+
+
+def lookup_defs(raw):
+    if raw[0] != "$":
+        return raw
+    name = raw[1:]
+    if not name in defs:
+        raise KeyError(f"undefined variable {name}")
+    return defs[name]
 
 
 def process_file(file):
@@ -39,14 +48,24 @@ def process_file(file):
                 configs.pop(value, None)
             elif line.startswith("set "):
                 name, value = line.split(" ")[1:]
-                sets[name] = value
+                defs[name] = value
             elif line.startswith("if "):
-                name, op, value = line.split(" ")[1:]
+                lhs, op, rhs = line.split(" ")[1:]
+                lhs = lookup_defs(lhs)
+                rhs = lookup_defs(rhs)
                 if op == "==":
-                    cond = sets.get(name, "") != value
+                    cond = lhs == rhs
+                elif op == ">=":
+                    cond = float(lhs) >= float(rhs)
+                elif op == "<=":
+                    cond = float(lhs) <= float(rhs)
+                elif op == ">":
+                    cond = float(lhs) > float(rhs)
+                elif op == "<":
+                    cond = float(lhs) < float(rhs)
                 else:
                     raise RuntimeError(f"unknown operator {op}")
-                if cond:
+                if not cond:
                     i += 1
                     while strip_line(lines[i]) != "fi":
                         i += 1
@@ -59,7 +78,9 @@ def process_file(file):
             i += 1
         except Exception as e:
             print(e, file=sys.stderr)
-            print(f'error occured while processing line "{line}"', file=sys.stderr)
+            print(
+                f'error occured while processing line "{file}:{i+1}"', file=sys.stderr
+            )
             exit(1)
 
 

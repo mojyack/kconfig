@@ -11,11 +11,11 @@ include /generated/lib/Kconfig
 include /generated/lib/Kconfig.debug
 include /generated/distro/Kconfig
 
-if arch == amd64
+if $arch == amd64
     include /generated/arch/x86/Kconfig
     include /generated/arch/x86/Kconfig.debug
 fi
-if arch == arm64
+if $arch == arm64
     include /generated/arch/arm64/Kconfig
     include /generated/arch/arm64/Kconfig.debug
 fi
