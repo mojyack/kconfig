@@ -12,6 +12,10 @@ CONFIG_DNS_RESOLVER=m
     CONFIG_NFSD_BLOCKLAYOUT=y
     CONFIG_RPCSEC_GSS_KRB5=m
     CONFIG_NFS_DISABLE_UDP_SUPPORT=y
+    if $kernel < 7.0
+        CONFIG_NFS_V4_1=y
+    fi
+    CONFIG_NFS_V4_2=y
     if $kernel < 7.1
         CONFIG_NFSD_V4_DELEG_TIMESTAMPS=y
     fi
