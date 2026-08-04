@@ -1,4 +1,5 @@
 set arch amd64
+set kernel 6.18
 include frag/general
 
 # arch
@@ -86,6 +87,7 @@ CONFIG_USB_XHCI_HCD=m
 CONFIG_USB_ACM=m
 CONFIG_USB_SERIAL=m
 CONFIG_USB_SERIAL_CH341=m
+CONFIG_USB_SERIAL_CP210X=m
 CONFIG_USB_SERIAL_QUALCOMM=m
 
 # rtc
