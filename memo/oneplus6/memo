@@ -4,10 +4,6 @@ pushd mkbootimg
 make CC=clang -j$(nproc)
 popd
 
-# create build directory
-mkdir build
-cp ~/build/kconfig/oneplus-oneplus_6 build/.config
-
 # prepare kernel
 git clone --depth=1 https://gitlab.com/sdm845-mainline/linux.git -b sdm845/7.1-dev
 pushd linux
@@ -19,8 +15,6 @@ sed -i 's/dr_mode = "peripheral"/dr_mode = "host"/' arch/arm64/boot/dts/qcom/sdm
 patch -p1 < msm-dpu-supress-warnings.patch
 
 mc usb1
-
-W=/tmp/linux/$model
 
 # follow regular-update
 
