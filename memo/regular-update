@@ -9,6 +9,7 @@ model=hb-sophia;                 A=x86;   D=/
 model=apple-macbook_air_6p1;     A=x86;   D=/tmp/mnt/usb1
 model=apple-macbook_pro_13p2;    A=x86;   D=/tmp/mnt/usb1
 model=bmax-b1_g1f2;              A=x86;   D=/tmp/mnt/corn
+model=lenovo-chromebook_14e;     A=x86;   D=/tmp/mnt/usb1
 
 W=/tmp/linux/$model
 
