@@ -107,6 +107,7 @@ CONFIG_IA32_EMULATION=y
 include frag/arch/x86/kvm
 CONFIG_KVM_AMD=m
 CONFIG_KVM_IOAPIC=y
+CONFIG_KVM_HYPERV=y
 
 # virtio
 include frag/drivers/vfio
