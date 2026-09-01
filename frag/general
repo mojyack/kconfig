@@ -163,7 +163,7 @@ CONFIG_BLOCK=y
 # Memory Management options {
     # Slab allocator options {
         CONFIG_SLAB_MERGE_DEFAULT=y
-        if $kernel < 7.1
+        if $kernel < 7.0
             CONFIG_SLUB_CPU_PARTIAL=y
         fi
     # } Slab allocator options
@@ -176,7 +176,9 @@ CONFIG_BLOCK=y
     CONFIG_TRANSPARENT_HUGEPAGE=y
     # TRANSPARENT_HUGEPAGE {
         CONFIG_TRANSPARENT_HUGEPAGE_MADVISE=y
-        CONFIG_READ_ONLY_THP_FOR_FS=y
+        if $kernel < 7.2
+            CONFIG_READ_ONLY_THP_FOR_FS=y
+        fi
     # } TRANSPARENT_HUGEPAGE
     CONFIG_PAGE_BLOCK_MAX_ORDER=10
     CONFIG_ZONE_DMA=y
@@ -402,9 +404,11 @@ CONFIG_NET=y
         CONFIG_PROC_FS=y
         # PROC_FS {
             CONFIG_PROC_KCORE=y
-            CONFIG_PROC_SYSCTL=y
             CONFIG_PROC_PAGE_MONITOR=y
             CONFIG_PROC_CHILDREN=y
+            if $kernel < 7.3
+                CONFIG_PROC_SYSCTL=y
+            fi
         # } PROC_FS
         CONFIG_SYSFS=y
         CONFIG_TMPFS=y

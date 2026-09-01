@@ -1,5 +1,5 @@
 CONFIG_ARM64_HW_AFDBM=y
-if $kernel < 7.1
+if $kernel < 7.0
     CONFIG_ARM64_USE_LSE_ATOMICS=y
     CONFIG_ARM64_PAN=y
 fi
