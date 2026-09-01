@@ -4,6 +4,8 @@ repo=~/build/kconfig
 model=mnt-pocket_reform_rcore;   A=arm64; D=/tmp/mnt/usb1
 model=raspberrypi-raspberrypi_5; A=arm64; D=/mnt
 model=oneplus-oneplus_6;         A=arm64; D=/tmp/mnt/usb1
+model=nvidia-jetson_nano;        A=arm64; D=/tmp/mnt/jetson
+model=nintendo-nx;               A=arm64; D=/tmp/mnt/usb1
 model=hb-solomon;                A=x86;   D=/tmp/mnt/solomon
 model=hb-sophia;                 A=x86;   D=/
 model=apple-macbook_air_6p1;     A=x86;   D=/tmp/mnt/usb1

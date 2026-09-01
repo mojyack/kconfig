@@ -1,0 +1,62 @@
+set arch arm64
+set kernel 7.3
+include frag/general
+
+include frag/fs/nfs
+include frag/extra/zram
+
+include frag/t210
+
+
+### drivers ###
+# mtd
+CONFIG_MTD=m
+CONFIG_MTD_BLOCK=m
+CONFIG_MTD_SPI_NOR=m
+
+# sata
+CONFIG_ATA=m
+CONFIG_SATA_AHCI_PLATFORM=m
+CONFIG_AHCI_TEGRA=m
+CONFIG_BLK_DEV_SD=m
+
+# net
+CONFIG_ETHERNET=y
+CONFIG_NET_VENDOR_REALTEK=y
+CONFIG_R8169=m
+
+# usb net
+CONFIG_USB_NET_DRIVERS=m
+CONFIG_USB_USBNET=m
+CONFIG_USB_NET_AX88179_178A=m
+CONFIG_USB_RTL8152=m
+
+# sound
+CONFIG_SND_HDA_TEGRA=m
+
+include frag/drivers/sound/usb
+
+# usb
+CONFIG_USB_CHIPIDEA=m
+CONFIG_USB_CHIPIDEA_TEGRA=m
+CONFIG_USB_TEGRA_PHY=m
+
+# cec
+CONFIG_MEDIA_CEC_SUPPORT=y
+CONFIG_CEC_TEGRA=m
+
+# staging
+CONFIG_STAGING=y
+CONFIG_STAGING_MEDIA=y
+CONFIG_VIDEO_TEGRA=m
+
+# nvmem
+CONFIG_NVMEM=y
+CONFIG_NVMEM_SYSFS=y
+CONFIG_EEPROM_AT24=m
+
+
+### options ###
+CONFIG_TUN=m
+
+include frag/debug
