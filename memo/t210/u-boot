@@ -1,0 +1,34 @@
+# prepare source
+git clone "https://github.com/mojyack/u-boot.git" -t t210-develop
+pushd u-boot
+
+model=nintendo-nx
+A=arm
+
+W=/tmp/u-boot/$model
+
+make_args=(
+    CROSS_COMPILE=aarch64-linux-gnu-
+    ARCH=$A
+    CC=clang
+    HOSTCC=clang
+    LLVM_IAS=1
+    LD=ld.lld
+    OBJCOPY=llvm-objcopy
+    AR=llvm-ar
+    NM=llvm-nm
+    STRIP=llvm-strip
+    READELF=llvm-readelf
+    OBJDUMP=llvm-objdump
+    O=$W
+    -j$(nproc)
+)
+alias umake="make $make_args"
+
+mkdir -p $W
+cp u-boot/nintendo-nx $W/.config
+
+umake nintendo-switch_defconfig
+umake
+
+cp $W/u-boot.bin /path/to/boot/bl33.bin

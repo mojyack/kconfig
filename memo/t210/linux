@@ -1,0 +1,11 @@
+# prepare source
+git clone "https://github.com/mojyack/linux.git" -t t210-develop
+pushd linux
+
+# follow regular-update
+
+kmake Image && kmake modules && kmake dtbs && rkmake modules_install
+# nx
+cp $W/arch/arm64/boot/{Image,dts/nvidia/{tegra210-nintendo-switch.dtb,tegra210-nintendo-switch-uartcon.dtb}} $D/boot
+# jetson
+cp $W/arch/arm64/boot/{Image,dts/nvidia/tegra210-p3450-0000.dtb} $D/boot
