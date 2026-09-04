@@ -409,6 +409,9 @@ CONFIG_NET=y
             if $kernel < 7.3
                 CONFIG_PROC_SYSCTL=y
             fi
+            if $kernel >= 7.3
+                CONFIG_SYSCTL=y
+            fi
         # } PROC_FS
         CONFIG_SYSFS=y
         CONFIG_TMPFS=y
