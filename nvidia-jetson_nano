@@ -59,4 +59,4 @@ CONFIG_EEPROM_AT24=m
 ### options ###
 CONFIG_TUN=m
 
-include frag/debug
+#include frag/debug
