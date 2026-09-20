@@ -119,6 +119,7 @@ CONFIG_AMD_IOMMU=y
 include frag/fs/nfs
 include frag/fs/btrfs
 include frag/fs/squashfs
+include frag/fs/iso9660
 CONFIG_HFSPLUS_FS=m
 
 CONFIG_TUN=m
