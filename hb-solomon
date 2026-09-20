@@ -23,9 +23,11 @@ CONFIG_SENSORS_ASUS_WMI=m
 
 # perf
 CONFIG_PERF_EVENTS_INTEL_RAPL=m
+CONFIG_PERF_EVENTS_AMD_UNCORE=m
 
 # acpi
 include frag/drivers/acpi
+CONFIG_ACPI_EC=y # PNP0C09
 
 ### drivers ###
 # pci
@@ -43,6 +45,8 @@ CONFIG_I2C_DESIGNWARE_PLATFORM=m
 # input
 CONFIG_HIDRAW=y
 CONFIG_HID_WACOM=m
+CONFIG_JOYSTICK_XPAD=m # 045e:028e
+CONFIG_JOYSTICK_XPAD_FF=y
 
 # block
 CONFIG_BLK_DEV_NBD=m
@@ -71,7 +75,8 @@ CONFIG_BT_HCIBTUSB_RTL=y
 
 # gpio
 include frag/drivers/gpio
-CONFIG_GPIO_AMDPT=m
+CONFIG_GPIO_AMDPT=m # AMDIF030
+CONFIG_PINCTRL_AMD=y # AMDI0030
 
 # gpu
 include frag/drivers/drm/amd
@@ -97,7 +102,7 @@ CONFIG_RTC_DRV_CMOS=m
 # platform
 CONFIG_ACPI_BATTERY=m
 CONFIG_ASUS_WMI=m
-    CONFIG_HOTPLUG_PCI=y
+CONFIG_HOTPLUG_PCI=y
 
 # ia32
 CONFIG_COMPAT_32BIT_TIME=y
@@ -115,6 +120,10 @@ CONFIG_PCI_IOV=y
 CONFIG_PCI_REALLOC_ENABLE_AUTO=y
 include frag/drivers/iommu
 CONFIG_AMD_IOMMU=y
+
+# mm
+CONFIG_LRU_GEN=y
+CONFIG_LRU_GEN_ENABLED=y
 
 include frag/fs/nfs
 include frag/fs/btrfs
