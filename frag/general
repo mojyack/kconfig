@@ -228,7 +228,9 @@ CONFIG_NET=y
     # } Block devices
 
     # SCSI device support {
-        CONFIG_SCSI=m  # USB_STORAGE
+        # USB_STORAGE
+        CONFIG_SCSI=m
+        CONFIG_BLK_DEV_SD=m
     # } SCSI device support
 
     CONFIG_NETDEVICES=y
