@@ -1,5 +1,5 @@
 set arch amd64
-set kernel 6.18
+set kernel 7.2
 include frag/general
 
 # arch
@@ -120,6 +120,9 @@ CONFIG_PCI_IOV=y
 CONFIG_PCI_REALLOC_ENABLE_AUTO=y
 include frag/drivers/iommu
 CONFIG_AMD_IOMMU=y
+
+# sched
+CONFIG_SCHED_CACHE=y
 
 # mm
 CONFIG_LRU_GEN=y
