@@ -2,11 +2,6 @@ set arch arm64
 set kernel 7.1
 include frag/general
 
-# PREEMPT_NONE not supported
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_NONE=n
-CONFIG_USB_PCI=n  # no pci
-
 # arch
 include frag/arch/arm64/general
 include frag/arch/arm64/feats/armv8-1
@@ -72,6 +67,7 @@ CONFIG_RMNET=m
 CONFIG_QCOM_IPA=m
 
 # usb net
+CONFIG_USB_PCI=n  # no pci
 CONFIG_USB_NET_DRIVERS=m
 CONFIG_USB_USBNET=m
 CONFIG_USB_RTL8152=m

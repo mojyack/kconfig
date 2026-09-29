@@ -38,7 +38,7 @@ fi
         CONFIG_BPF_JIT_ALWAYS_ON=y
     # } BPF subsystem
 
-    CONFIG_PREEMPT_NONE=y
+    CONFIG_PREEMPT_LAZY=y
 
     # CPU/Task time and stats accounting {
         CONFIG_TICK_CPU_ACCOUNTING=y
