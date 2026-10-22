@@ -1,5 +1,4 @@
 v=7.1.13
-# see ../regular-update for environment setup
 
 # download files
 curl -OL https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-$v.tar.xz
